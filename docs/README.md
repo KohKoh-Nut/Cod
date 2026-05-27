@@ -41,12 +41,21 @@ For "false beginners" those who know basic syntax but struggle to write function
 - **Contextual AI Canvas:** A dedicated UI sidebar explicitly designed to stream and format AI feedback without disrupting the coding flow.
 
 ## User stories
+**Story 1 – The Guided Learner**
 
-1. **Newbie (who want to learn coding but don't know where to start = 'False Beginner'):** This tool gives them a head start to any coding language, serving as a coding wiki, personalized adviser, even a buddy in the learning journey.
+> As a beginner who understands programming basics but struggles to start complex scripts independently, I want to ask questions and get clear, contextual guidance at any point in my coding process, so that I can build confidence and make progress without feeling overwhelmed or stuck.
 
-2. **Bug discovery and elimination for student:** The AI helps to find the error in the code being pasted by user.
+---
 
-3. **Competitive user:** wanna to know your own progress? Leaderboard tells them! As mentioned before, leaderboard allows user to check with their personal progress with worldwide learners, even aliens or reptilians if possible?!
+**Story 2 – The Debugging Student**
+
+> As a student working on assignments or personal scripts, I want to paste my code and receive a clear explanation of what is wrong and why, so that I can fix my bugs and understand the underlying principle well enough to avoid the same mistake in the future.
+
+---
+
+**Story 3 – The Competitive Progress Tracker**
+
+> As a learner who is motivated by friendly competition, I want to see how my skill progress compares to others in the community, so that I stay consistently engaged and feel a sense of achievement as I improve over time.
 
 ## Demo
 
