@@ -1,0 +1,96 @@
+:root {
+  /* ==========================================
+     THE VOID & DEEP SHADOWS (Dark Bases) 
+     ========================================== */
+  --abyssal_bark: #080911;       /* Deepest obsidian tech void */
+  --burnt_charcoal: #0d0e15;     /* Dark terminal background */
+  --canyon_floor: #121324;       /* Sleek mainframe surface slate */
+  --crushed_clay: #1a1b35;       /* Cyber-grid dark backdrop */
+
+  /* ==========================================
+     THE LIGHT & INFRASTRUCTURE (Text & Holograms) 
+     ========================================== */
+  --dusty_parchment: #f0f3ff;    /* Super-bright neon-white display text */
+  --river_silt: #c0caf5;         /* Classic Tokyo Night terminal silver */
+
+  /* ==========================================
+     THE MAGMA / CRIMSON SPECTRUM (High-Voltage Pinks & Magentas) 
+     ========================================== */
+  --magma_dust: #ff007f;         /* Overdriven neon pink / laser line */
+  --wildfire: #ff3399;           /* Blazing hot magenta */
+  --rusty_canyon: #e60067;       /* Deep cyber fuchsia */
+  --baked_brick: #b3004b;        /* Low-lit neon pulse red */
+  --crimson_creek: #66002b;      /* Dark synthwave under-glow crimson */
+
+  /* ==========================================
+     THE DESERT ROSE SPECTRUM (Electric Purples & Violets) 
+     ========================================== */
+  --desert_rose: #bf95fc;        /* Bright neon violet accent */
+  --dusty_mauve: #9d62ec;        /* Vivid cyber purple */
+  --wild_plum: #7a32d6;          /* Deep ultraviolet */
+  --berry_bramble: #511ca3;      /* Dark sector purple */
+  --dusk_shadow: #2d0e66;        /* Sub-layer neural net violet */
+
+  /* ==========================================
+     THE APRICOT / OCHRE SPECTRUM (Warning Beacons & Orange Neons) 
+     ========================================== */
+  --apricot_dust: #ff9e3b;       /* Radioactive orange warning light */
+  --canyon_flash: #ffb86c;       /* Bright laser-orange readout */
+  --burnt_ochre: #e67e22;        /* High-visibility copper warning */
+  --iron_oxide: #b35300;         /* Industrial terminal hazard color */
+  --ember_glow: #662f00;         /* Warning override dark amber */
+
+  /* ==========================================
+     THE GOLD SPECTRUM (Neon Yellows & Matrix Gold) 
+     ========================================== */
+  --tumbleweed: #ffec73;         /* Sharp electric gold text */
+  --spinifex_gold: #ffdf00;      /* Hyper-saturated neon yellow */
+  --dry_straw: #d4b200;          /* Warning alert gold */
+  --roasted_cumin: #997a00;      /* Dark dashboard brass */
+  --savannah_dusk: #594400;      /* Low-power battery yellow */
+
+  /* ==========================================
+     THE DESERT SAGE SPECTRUM (Radioactive / Mint Greens) 
+     ========================================== */
+  --desert_sage: #a3e6b8;        /* Soft cyber-mint glow */
+  --pale_spinifex: #73daca;      /* Crisp Tokyo Night cyan-green */
+  --dusty_olive: #4cd184;        /* Safe-status neon green */
+  --lichen_crust: #2bb362;       /* Command-line prompt green */
+  --dry_moss: #136633;           /* Dark matrix pipeline green */
+
+  /* ==========================================
+     THE EUCALYPTUS SPECTRUM (Deep Cyber Greens) 
+     ========================================== */
+  --eucalyptus_leaf: #1abc9c;    /* Electric turquoise interface */
+  --overgrown_fern: #16a085;     /* Darker terminal cyan */
+  --swamp_murk: #0e6655;         /* Deep cyber-mesh teal */
+  --ancient_pine: #0a4035;       /* Sub-grid system dark teal */
+  --midnight_forest: #05201a;    /* Deep matrix void */
+
+  /* ==========================================
+     THE RIVER OOZE / TEAL SPECTRUM (Ice Blues & Cyans) 
+     ========================================== */
+  --shale_green: #73f5ff;        /* Blinding ice-cyan laser */
+  --river_ooze: #00e5ff;         /* Pure neon cyan interface */
+  --deep_teal: #00b3cc;          /* Medical-bay glow blue */
+  --sunken_timber: #006673;      /* Deep cyber-aquatic blue */
+  --flooded_creek: #00333a;      /* Bottom of the digital well */
+
+  /* ==========================================
+     THE OUTBACK SKY SPECTRUM (Sky & Deep Tech Blues) 
+     ========================================== */
+  --outback_sky: #7aa2f7;        /* Tokyo Night primary interface blue */
+  --eucalyptus_smoke: #565f89;   /* Muted tech-grey blue */
+  --bluestone: #3d59a1;          /* Active circuit blue */
+  --storm_canopy: #243b73;       /* Server rack background blue */
+  --night_monsoon: #101a33;      /* Deep sub-level cyber navy */
+
+  /* ==========================================
+     THE FOSSIL / WOOD SPECTRUM (Chassis Grays & UI Scaffolding) 
+     ========================================== */
+  --fossil_bone: #a9b1d6;        /* High-grade titanium metal gray */
+  --weathered_wood: #787c99;     /* Secondary chassis steel gray */
+  --termite_mound: #444b6a;      /* Grid line border gray */
+  --dried_bark: #292e42;         /* Panel background divider gray */
+  --charred_root: #1f2335;       /* Dark tech component housing */
+}

@@ -1,7 +1,7 @@
 /* src/styles/globals.css */
 @import "tailwindcss";
-@import "./mamboorche.css";
-@import "./mambooutback.css";
+@import "./norwegiancod.css";
+@import "./atlanticcod.css";
 
 @theme {
     /* #region Color */
@@ -110,10 +110,6 @@
 [class^="c-border-"],
 [class*=" c-border-"] {
     border-color: var(--current-border-color);
-    border-top-color: var(--current-border-color);
-    border-bottom-color: var(--current-border-color);
-    border-left-color: var(--current-border-color);
-    border-right-color: var(--current-border-color);
 
     --current-border-color: var(--border-color);
 
@@ -127,62 +123,6 @@
     border-width: 1px;
     --border-color: var(--color-border);
     --border-hover-color: var(--color-comment);
-}
-
-@utility c-border-static {
-    border-width: 1px;
-    --border-color: var(--color-border);
-    --border-hover-color: var(--color-border);
-}
-
-@utility c-border-top-normal {
-    border-top-width: 1px;
-    --border-color: var(--color-border);
-    --border-hover-color: var(--color-comment);
-}
-
-@utility c-border-bottom-normal {
-    border-bottom-width: 1px;
-    --border-color: var(--color-border);
-    --border-hover-color: var(--color-comment);
-}
-
-@utility c-border-left-normal {
-    border-left-width: 1px;
-    --border-color: var(--color-border);
-    --border-hover-color: var(--color-comment);
-}
-
-@utility c-border-right-normal {
-    border-right-width: 1px;
-    --border-color: var(--color-border);
-    --border-hover-color: var(--color-comment);
-}
-/* #endregion */
-
-/* #region Outline */
-[class^="c-outline-"],
-[class*=" c-outline-"] {
-    @apply outline;
-
-    outline-color: var(--current-outline-color);
-
-    --current-outline-color: var(--outline-color);
-
-    &:hover,
-    .group:hover & {
-        --current-outline-color: var(--outline-hover-color);
-    }
-}
-
-@utility c-outline-normal {
-    --outline-color: var(--color-border);
-    --outline-hover-color: var(--color-comment);
-}
-
-@utility c-outline-hover {
-    --outline-color: transparent;
-    --outline-hover-color: var(--color-border);
 }
 /* #endregion */
 
@@ -201,16 +141,7 @@
 
 @utility c-bg-normal {
     --bg-color: var(--color-bg-surface);
-    --bg-hover-color: var(--color-fossil-bone);
-}
-
-@utility c-bg-hover {
-    --bg-color: transparent;
-    --bg-hover-color: color-mix(
-        in srgb,
-        var(--color-bg-surface) 67%,
-        transparent
-    );
+    --bg-hover-color: var(--color-charred-root);
 }
 /* #endregion */
 
@@ -244,64 +175,4 @@
     --label-hover-color: var(--color-brand);
 }
 
-@utility c-label-brand {
-    --label-color: var(--color-brand);
-    --label-hover-color: var(--color-brand-hover);
-    --label-letter-spacing: -0.025em;
-}
-
-@utility c-label-hidden {
-    --label-color: var(--color-brand);
-    --label-hover-color: var(--color-brand);
-    --label-letter-spacing: 0.05em;
-    --label-opacity: 0;
-}
-
-/* #endregion */
-
-/* #region Text */
-[class^="c-text-"],
-[class*=" c-text-"] {
-    @apply font-mono;
-
-    color: var(--current-text-color);
-    line-height: var(--current-text-line-height, normal);
-    letter-spacing: var(--current-text-letter-spacing);
-
-    --current-text-color: var(--text-color);
-    --current-text-letter-spacing: var(--text-letter-spacing, normal);
-    --current-text-line-height: var(--text-line-height, normal);
-    --current-text-selection-color: var(--text-selection-color, transparent);
-
-    &:hover,
-    .group:hover & {
-        --current-text-color: var(--text-hover-color, var(--text-color));
-    }
-
-    /* 🎯 STEP 2: Bind the native pseudo-element directly to your variable state */
-    &::selection,
-    .group *::selection {
-        background-color: var(--text-selection-color) !important;
-    }
-}
-
-@utility c-text-des {
-    --text-color: var(--color-fg-muted);
-    --text-line-height: 1.625;
-    --text-selection-color: color-mix(
-        in srgb,
-        var(--color-brand) 33%,
-        transparent
-    );
-}
-
-@utility c-text-date {
-    --text-color: var(--color-fg-muted);
-    --text-letter-spacing: 0.1em;
-    --text-selection-color: color-mix(
-        in srgb,
-        var(--color-brand) 33%,
-        transparent
-    );
-}
 /* #endregion */

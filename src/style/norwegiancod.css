@@ -1,0 +1,15 @@
+:root {
+  --bg: #0a0a0f;                 /* Deep, dark cyber void */
+  --bg_surface: #12121e;         /* Sleek, metallic terminal surface */
+  --border: #1f1f38;             /* Low-lit neon grid border */
+  --fg: #c0caf5;                 /* Tokyo night vibrant silver/white text */
+  --fg_muted: #565f89;           /* Muted holo-grey for secondary text */
+  --comment: #414868;            /* Ghostly blue-grey for code comments */
+  --brand: #ff007f;              /* High-voltage neon magenta/pink */
+  --brand_hover: #cc0066;        /* Overdriven, deeper laser pink */
+  --interactive: #bb9af7;        /* Electric neon purple/violet */
+  --interactive_hover: #7aa2f7;  /* Sharp cyber sky-blue */
+  --success: #73daca;            /* Radioactive mint/cyan green */
+  --warning: #e0af68;            /* Warning beacon neon orange/yellow */
+  --error: #f7768e;              /* Critical system error red */
+}

@@ -7,23 +7,25 @@ export interface CodeEditorProps {
     onChange: (value: string | undefined) => void;
 }
 
-// Lazy-load the third-party editor core on the client side to avoid Node server-side compilation crashes
+// Client-side only import to prevent SSR compilation errors with Monaco Editor
 const MonacoEditorInner = dynamic(
     () => import("@monaco-editor/react").then((mod) => mod.default),
     {
         ssr: false,
         loading: () => (
-            <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-zinc-400 rounded-lg border border-zinc-700">
+            <div className="h-full w-full flex items-center justify-center text-fg bg-burnt-charcoal">
                 Loading Monaco Editor...
             </div>
         ),
     },
 );
 
-// Standard React wrapper component designed to expose clean types directly to Next.js parent pages
+/**
+ * Next.js compatible Monaco Editor wrapper for code editing and configuration.
+ */
 export default function CodeEditor({ value, onChange }: CodeEditorProps) {
     return (
-        <div className="h-full w-full">
+        <div className="h-full w-full min-h-0">
             <MonacoEditorInner
                 height="100%"
                 defaultLanguage="python"
