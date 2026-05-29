@@ -1,8 +1,8 @@
-import { ButtonProps } from "@/components/Interface";
-import Button from "@/components/Button/Button";
+import { NavButtonProps } from "@/components/Interface";
+import NavButton from "@/components/Button/NavButton";
 
 /**
- * Standard button variant with default themes that can be overridden via className.
+ * Standard navigation button variant with default themes that can be overridden via className.
  */
 export default function NormalButton({
     label,
@@ -10,19 +10,21 @@ export default function NormalButton({
     onMouseEnter = () => {},
     onMouseLeave = () => {},
     className: style,
-}: ButtonProps) {
+    link,
+}: NavButtonProps) {
     // Fallback to default styling if no custom className is provided
     const base = [
         style ? style : "c-bg-normal c-border-normal c-label-muted",
     ].join(" ");
 
     return (
-        <Button
+        <NavButton
             label={label}
+            onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            onClick={onClick}
             className={base}
+            link={link}
         />
     );
 }

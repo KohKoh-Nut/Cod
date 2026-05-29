@@ -13,14 +13,14 @@ interface CodeOutputProps {
 export default function CodeOutput({ output, isLoading }: CodeOutputProps) {
     const scrollRef = useAutoScroll(output);
 
-    const base = [
+    const baseContainer = [
         "font-mono text-xs",
         "w-full h-full",
         "flex flex-col overflow-hidden",
         "bg-burnt-charcoal text-fossil-bone",
     ].join(" ");
 
-    const header = [
+    const baseHeader = [
         "font-bold text-xs uppercase tracking-wider",
         "w-full px-4 py-2 pt-3",
         "flex items-center justify-between",
@@ -28,16 +28,16 @@ export default function CodeOutput({ output, isLoading }: CodeOutputProps) {
         "border-b border-crushed-clay",
     ].join(" ");
 
-    const out = [
+    const baseOutput = [
         "text-sm p-4 leading-relaxed whitespace-pre-wrap",
-        "flex-1 overflow-y-auto custom-scrollbar",
+        "flex-1 overflow-y-auto",
     ].join(" ");
 
     return (
-        <div className={base}>
-            <div className={header}>Console Output</div>
+        <div className={baseContainer}>
+            <div className={baseHeader}>Console Output</div>
 
-            <div ref={scrollRef} className={out}>
+            <div ref={scrollRef} className={baseOutput}>
                 {isLoading ? (
                     <span className="text-warning animate-pulse">
                         Executing script...

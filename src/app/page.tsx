@@ -8,6 +8,7 @@ import ButtonBar from "@/modules/ButtonBar";
 import FloatingButton from "@/components/Button/FloatingButton";
 import CodeOutput from "@/components/Code/CodeOutput";
 import CodeEditor from "@/components/Code/CodeEditor";
+import Chat from "@/modules/Chat";
 
 /**
  * Main dashboard application layout managing state coordination between the code editor,
@@ -80,14 +81,13 @@ export default function Home() {
                 </div>
 
                 {/* Optional side-panel assistant container block */}
-                {isVisible && (
-                    <div className="bg-crimson-creek h-full flex-1"></div>
-                )}
+                {isVisible && <Chat className="flex-1" />}
             </div>
 
             <FloatingButton
                 label="AI"
                 onClick={() => setIsVisible(!isVisible)}
+                position="bottom-23 right-6"
             />
         </main>
     );

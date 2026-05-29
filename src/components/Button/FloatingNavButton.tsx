@@ -1,18 +1,19 @@
-import { ButtonProps, FloatingButtonExtra } from "@/components/Interface";
-import Button from "@/components/Button/Button";
+import { NavButtonProps, FloatingButtonExtra } from "@/components/Interface";
+import NavButton from "@/components/Button/NavButton";
 
 /**
- * Floating Action Button (FAB) variant positioned fixed on the screen with scale animations.
+ * Floating Navigation Button (FNB) variant positioned fixed on the screen with scale animations.
  */
-export default function FloatingButton({
+export default function FloatingNavButton({
     label,
     onClick = () => {},
     onMouseEnter = () => {},
     onMouseLeave = () => {},
     className: style,
+    link,
     position,
     text,
-}: ButtonProps & FloatingButtonExtra) {
+}: NavButtonProps & FloatingButtonExtra) {
     // Layout positioning, dimensions, micro-interactions, and theme fallbacks
     const base = [
         "fixed z-50",
@@ -26,12 +27,13 @@ export default function FloatingButton({
     ].join(" ");
 
     return (
-        <Button
+        <NavButton
             label={label}
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             className={base}
+            link={link}
         />
     );
 }
