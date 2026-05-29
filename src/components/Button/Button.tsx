@@ -7,6 +7,8 @@ import { twMerge } from "tailwind-merge";
 export default function Button({
     label,
     onClick = () => {},
+    onMouseEnter = () => {},
+    onMouseLeave = () => {},
     className = "",
 }: ButtonProps) {
     // Core layout and transition styles
@@ -21,7 +23,7 @@ export default function Button({
     const combined = twMerge(base, className);
 
     return (
-        <button onClick={onClick} type="button" className={combined}>
+        <button onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} type="button" className={combined}>
             {label}
         </button>
     );

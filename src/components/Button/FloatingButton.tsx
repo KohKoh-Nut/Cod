@@ -7,6 +7,8 @@ import Button from "@/components/Button/Button";
 export default function FloatingButton({
     label,
     onClick = () => {},
+    onMouseEnter = () => {},
+    onMouseLeave = () => {},
     className: style,
 }: ButtonProps) {
     // Layout positioning, dimensions, micro-interactions, and theme fallbacks
@@ -18,5 +20,5 @@ export default function FloatingButton({
         style ? style : "c-bg-normal c-border-normal c-label-muted",
     ].join(" ");
 
-    return <Button label={label} onClick={onClick} className={base} />;
+    return <Button label={label} onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} className={base} />;
 }
