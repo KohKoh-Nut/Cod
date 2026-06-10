@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import NormalButton from "../components/Button/NormalButton";
+import Button from "../components/Button";
 
 interface ChatMessage {
     sender: "USER" | "TRUMP";
@@ -117,7 +117,7 @@ export default function Chat({ className }: ChatProps) {
                         className={baseInput}
                     />
                 </div>
-                <NormalButton label="Send" onClick={Send} />
+                <Button label="Send" onClick={Send} />
             </div>
         </div>
     );

@@ -1,7 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
-import FloatingNavButton from "@/components/Button/FloatingNavButton";
-import NormalNavButton from "@/components/Button/NormalNavButton";
+import Button from "@/components/Button";
 
 /**
  * Navigation bar component featuring a hover-triggered popover menu with debounced visibility tracking.
@@ -24,39 +23,38 @@ export default function NavBar() {
 
     return (
         <main>
-            <FloatingNavButton
+            <Button
                 label="Code"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 link="/"
-                position="bottom-6 left-6"
-                text="text-base pt-1"
+                className="fixed bottom-6 left-6 text-base pt-1 z-50"
             />
 
             {isVisible && (
                 <div className="flex flex-col justify-between absolute bottom-6 left-30 z-50">
-                    <NormalNavButton
+                    <Button
                         label="Profile"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         link="/profile"
                     />
 
-                    <NormalNavButton
+                    <Button
                         label="Settings"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         link="/settings"
                     />
 
-                    <NormalNavButton
+                    <Button
                         label="Sandbox"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         link="/sandbox"
                     />
 
-                    <NormalNavButton
+                    <Button
                         label="Leaderboard"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}

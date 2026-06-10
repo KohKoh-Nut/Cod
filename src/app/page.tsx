@@ -5,10 +5,11 @@ import { useCodeExecution } from "@/hooks/useCodeExecution";
 import { useTimer } from "@/hooks/useTimer";
 import { INITIAL_PYTHON_CODE } from "@/constants/codeSample";
 import ButtonBar from "@/modules/ButtonBar";
-import FloatingButton from "@/components/Button/FloatingButton";
+import Button from "@/components/Button";
 import CodeOutput from "@/components/Code/CodeOutput";
 import CodeEditor from "@/components/Code/CodeEditor";
 import Chat from "@/modules/Chat";
+import Text from "@/components/Text";
 
 /**
  * Main dashboard application layout managing state coordination between the code editor,
@@ -61,8 +62,8 @@ export default function Home() {
     return (
         <main className="c-page-layout">
             <div className="flex flex-row justify-start gap-20 p-4">
-                <p className="font-base">{"Task-001"}</p>
-                <p className="font-base">{`Time  ${timeString}`}</p>
+                <Text label={"Task-001"} />
+                <Text label={`Time  ${timeString}`} />
                 <ButtonBar buttons={buttonList} />
             </div>
 
@@ -84,10 +85,10 @@ export default function Home() {
                 {isVisible && <Chat className="flex-1" />}
             </div>
 
-            <FloatingButton
-                label="AI"
+            <Button
+                label={isVisible ? "X" : "AI"}
                 onClick={() => setIsVisible(!isVisible)}
-                position="bottom-23 right-6"
+                className="fixed bottom-24 right-6"
             />
         </main>
     );

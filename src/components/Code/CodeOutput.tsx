@@ -1,6 +1,7 @@
 "use client";
 
 import { useAutoScroll } from "@/hooks/useAutoScroll";
+import Text from "@/components/Text";
 
 interface CodeOutputProps {
     output: string;
@@ -35,19 +36,30 @@ export default function CodeOutput({ output, isLoading }: CodeOutputProps) {
 
     return (
         <div className={baseContainer}>
-            <div className={baseHeader}>Console Output</div>
+            <Text label="Console Output" className={baseHeader} size="none" />
 
             <div ref={scrollRef} className={baseOutput}>
                 {isLoading ? (
-                    <span className="text-warning animate-pulse">
-                        Executing script...
-                    </span>
+                    <Text
+                        label="Executing script..."
+                        as="span"
+                        className="text-warning animate-pulse"
+                        size="sm"
+                    />
                 ) : output ? (
-                    <span className="text-fg">{output}</span>
+                    <Text
+                        label={output}
+                        as="span"
+                        className="text-fg"
+                        size="sm"
+                    />
                 ) : (
-                    <span className="text-comment italic">
-                        {'Click "run" to see results here...'}
-                    </span>
+                    <Text
+                        label={'Click "run" to see results here...'}
+                        as="span"
+                        className="text-comment italic"
+                        size="sm"
+                    />
                 )}
             </div>
         </div>

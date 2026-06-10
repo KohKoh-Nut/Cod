@@ -1,5 +1,13 @@
-import { ButtonProps } from "@/components/Interface";
-import NormalButton from "@/components/Button/NormalButton";
+import Button from "@/components/Button";
+
+interface ButtonProps {
+    label: string;
+    link?: string;
+    onClick?: () => void;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+    className?: string;
+}
 
 interface ButtonBarProps {
     buttons: ButtonProps[];
@@ -12,7 +20,7 @@ export default function ButtonBar({ buttons }: ButtonBarProps) {
     return (
         <div className="flex flex-row justify-left gap-2">
             {buttons.map((button) => (
-                <NormalButton
+                <Button
                     key={button.label}
                     label={button.label}
                     onClick={button.onClick}
