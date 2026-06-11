@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Button from "../components/Button";
+import Message from "@/components/Chat/Message";
 
 interface ChatMessage {
     sender: "USER" | "TRUMP";
@@ -71,36 +72,21 @@ export default function Chat({ className }: ChatProps) {
         "bg-crushed-clay text-fg",
     ].join(" ");
 
-    // Message layout variations
-    const baseMessage = [
-        "p-4 max-w-[80%]",
-        "border leading-relaxed break-words",
-    ].join(" ");
-    const userMessage = [
-        "self-end text-eucalyptus-leaf",
-        "bg-ancient-pine border-swamp-murk",
-    ].join(" ");
-    const botMessage = [
-        "self-start text-shale-green",
-        "bg-sunken-timber border-deep-teal",
-    ].join(" ");
-
     return (
         <div className={`${baseContainer} ${className}`}>
             <div className={baseChat}>
-                {chatLog.map((msg, index) => (
-                    <div
-                        key={index}
-                        className={`${baseMessage} ${
-                            msg.sender === "USER" ? userMessage : botMessage
-                        }`}
-                    >
-                        <span className="font-bold block mb-1">
-                            [{msg.sender}]:
-                        </span>
-                        {msg.text}
-                    </div>
-                ))}
+                {chatLog.map((msg, index) => {
+                    const isUser = msg.sender === "USER";
+
+                    return (
+                        <Message
+                            key={index}
+                            sender={msg.sender}
+                            text={msg.text}
+                            type={isUser ? "send" : "receive"}
+                        />
+                    );
+                })}
             </div>
             <div className={baseBar}>
                 <div className="min-w-0 flex-1 bg-burnt-charcoal text-comment">
