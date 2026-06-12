@@ -87,6 +87,7 @@ interface ButtonProps
         VariantProps<typeof ButtonLayout>,
         VariantProps<typeof ButtonTheme> {
     label: string;
+    type?: "submit" | "button" | "reset";
     link?: string;
     className?: string;
     onClick?: () => void;
@@ -121,6 +122,7 @@ export default function Button({
     text,
     size,
     scale,
+    type = "button",
     ...props
 }: ButtonProps) {
     const combined = twMerge(

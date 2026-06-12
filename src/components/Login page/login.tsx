@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Input from '@/components/Input';
+import Button from '@/components/Button';
 
 export default function SignupForm() {
 
@@ -51,7 +53,6 @@ export default function SignupForm() {
     }
 
     console.log("Form submitted successfully!", { email, name, psword });
-    // This is where you would call your API backend route
 
   };
 
@@ -67,60 +68,54 @@ export default function SignupForm() {
         <h2 className="text-2xl font-bold text-white text-center mb-2">Create Account</h2>
 
         {/* Email Input */}
-        <input
+        <Input
+          label="Email Address"
           type="email"
           placeholder="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-slate-700 text-white border border-slate-600 px-4 py-2 rounded focus:outline-none focus:border-cyan-500"
           required
         />
 
         {/* Username Input */}
-        <input
+        <Input
+          label="Username"
           type="text"
           placeholder="Username"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="bg-slate-700 text-white border border-slate-600 px-4 py-2 rounded focus:outline-none focus:border-cyan-500"
           required
         />
 
         {/* Password Input */}
-        <input
+        <Input
+          label="Password"
           type="password"
           placeholder="Password"
           value={psword}
           onChange={(e) => setPsword(e.target.value)}
-          className="bg-slate-700 text-white border border-slate-600 px-4 py-2 rounded focus:outline-none focus:border-cyan-500"
           required
         />
 
         {/* Confirm Password Input */}
-        <input
+        <Input
+          label="Confirm Password"
           type="password"
           placeholder="Confirm Password"
           value={cpsword}
           onChange={(e) => setCpsword(e.target.value)}
-          className="bg-slate-700 text-white border border-slate-600 px-4 py-2 rounded focus:outline-none focus:border-cyan-500"
+          error={error.includes("match") ? error : undefined}
           required
         />
 
-        {/* Conditional Error Message Column */}
-        {error && (
-        <div className="flex items-center space-x-2 text-red-400 text-sm font-medium animate-fade-in">
-            <span className="text-base font-bold">✕</span>
-            <span>{error}</span>
-        </div>
-        )}
-
         {/* Submit Button */}
-        <button
+        <Button
+          label="Sign Up"
           type="submit"
-          className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded transition colors"
-        >
-          Sign Up
-        </button>
+          size="md"
+          scale="bounce"
+          className="w-full mt-2"
+        />
         
       </form>
     </div>
