@@ -10,7 +10,7 @@
     <img src="https://img.shields.io/badge/Judge0-000000?style=flat-square&logo=gnubash&logoColor=white" alt="Judge0" />
 </p>
 <p align="left">
-    <img src="https://img.shields.io/badge/Deploy-Not Live-red?style=flat-square" alt="Deploy Status" />   
+    <img src="https://img.shields.io/badge/Deploy-Live-green?style=flat-square" alt="Deploy Status" />   
     <img src="https://img.shields.io/badge/Maintenance-Active-brightgreen?style=flat-square" />
     <a href="LICENSE"><img src="https://img.shields.io/github/license/ProjectMambo/MamboFolio?style=flat-square&color=orange" /></a>
 </p>
@@ -19,6 +19,9 @@ An AI-guided learning platform tailored for coding.
 
 **Team:** Coding Beach\
 **Level of Achievement:** Gemini
+
+## Demo
+Live site available at: [https://kohkoh-nut.github.io/Cod/](https://kohkoh-nut.github.io/Cod/)
 
 ## Overview
 
