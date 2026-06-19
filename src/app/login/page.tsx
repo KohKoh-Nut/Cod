@@ -63,7 +63,7 @@ export default function SignupForm() {
       {/* Form Architecture & Layout Container */}
       <form 
         onSubmit={handleSubmit} 
-        className="w-full max-w-md p-6 bg-slate-800 rounded-lg shadow-md flex flex-col space-y-4"
+        className="w-full max-w-md p-6 bg-slate-800 shadow-md flex flex-col space-y-4"
       >
         <h2 className="text-2xl font-bold text-white text-center mb-2">Create Account</h2>
 

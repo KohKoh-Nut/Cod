@@ -1,13 +1,12 @@
 "use client";
-
 import dynamic from "next/dynamic";
 
 export interface CodeEditorProps {
     value: string;
     onChange: (value: string | undefined) => void;
+    language?: string;
 }
 
-// Client-side only import to prevent SSR compilation errors with Monaco Editor
 const MonacoEditorInner = dynamic(
     () => import("@monaco-editor/react").then((mod) => mod.default),
     {
@@ -20,15 +19,24 @@ const MonacoEditorInner = dynamic(
     },
 );
 
-/**
- * Next.js compatible Monaco Editor wrapper for code editing and configuration.
- */
-export default function CodeEditor({ value, onChange }: CodeEditorProps) {
+// Monaco uses "cpp" but internally calls it "cpp" - remap display names if needed
+const MONACO_LANGUAGE_MAP: Record<string, string> = {
+    cpp: "cpp",
+    "c++": "cpp",
+};
+
+export default function CodeEditor({
+    value,
+    onChange,
+    language = "python",
+}: CodeEditorProps) {
+    const monacoLang = MONACO_LANGUAGE_MAP[language] ?? language;
+
     return (
         <div className="h-full w-full min-h-0">
             <MonacoEditorInner
                 height="100%"
-                defaultLanguage="python"
+                language={monacoLang}
                 theme="vs-dark"
                 value={value}
                 onChange={onChange}
