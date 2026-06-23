@@ -17,48 +17,43 @@ export default function Auth() {
     setError('');
 
     if (isSignUp) {
-      // Check 1: Do the passwords match?
       if (psword !== cpsword) {
         setError("Passwords do not match.");
         return;
       }
-      // Check 2: Is it long enough?
       if (psword.length < 8) {
         setError("Password must be at least 8 characters long.");
         return;
       }
-      // Check 3: Does it have a number?
       if (!/[0-9]/.test(psword)) {
         setError("Password must contain at least one number.");
         return;
       }
-      // Check 4: Does it have an uppercase letter?
       if (!/[A-Z]/.test(psword)) {
         setError("Password must contain at least one uppercase letter.");
         return;
       }
-      // Check 5: Does it have a lowercase letter?
       if (!/[a-z]/.test(psword)) {
         setError("Password must contain at least one lowercase letter.");
         return;
       }
-      // Check 6: Does it have a special character?
       if (!/[!@#$%^&*(),.?":{}|<>]/.test(psword)) {
         setError("Password must contain at least one special character.");
         return;
       }
 
-      const {data: signUpData, error: signUpError} = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
-        password: psword, 
-        options:{ data: { name } },
+        password: psword,
+        options: { data: { name } },
       });
 
-      if (signUpError){
+      if (signUpError) {
         console.error("Error signing up:", signUpError.message);
         setError(signUpError.message);
         return;
       }
+
       if (signUpData.user) {
         const { error: usersError } = await supabase
           .from('users')
@@ -66,38 +61,35 @@ export default function Auth() {
             id: signUpData.user.id,
             email: email,
             username: name,
-    });
+          });
 
-      if (usersError) {
-        console.error("Error creating account:", usersError.message);
-        setError(usersError.message);
+        if (usersError) {
+          console.error("Error creating account:", usersError.message);
+          setError(usersError.message);
+          return;
+        }
+      }
+
+      console.log("Signed up successfully!", { email, name });
+
+    } else {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: psword,
+      });
+
+      if (signInError) {
+        console.error("Error signing in:", signInError.message);
+        setError(signInError.message);
         return;
       }
+
+      console.log("Signed in successfully!", { email });
     }
-
-    console.log("Signed up successfully!", { email, name });
-
-  } else {
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password: psword,
-    });
-
-    if (signInError) {
-      console.error("Error signing in:", signInError.message);
-      setError(signInError.message);
-      return;
-    }
-
-    console.log("Signed in successfully!", { email });
-  }
-};
+  };
 
   return (
-    // The Layout Blueprint (Centered Wrapper)
     <div className="flex min-h-screen items-center justify-center bg-slate-900 p-4">
-
-      {/* Form Architecture & Layout Container */}
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md p-6 bg-slate-800 rounded-lg shadow-md flex flex-col space-y-4"
@@ -106,7 +98,6 @@ export default function Auth() {
           {isSignUp ? "Create Account" : "Sign In"}
         </h2>
 
-        {/* Email Input */}
         <Input
           label="Email Address"
           type="email"
@@ -116,7 +107,6 @@ export default function Auth() {
           required
         />
 
-        {/* Username Input */}
         {isSignUp && (
           <Input
             label="Username"
@@ -128,7 +118,6 @@ export default function Auth() {
           />
         )}
 
-        {/* Password Input */}
         <Input
           label="Password"
           type="password"
@@ -138,7 +127,6 @@ export default function Auth() {
           required
         />
 
-        {/* Confirm Password Input */}
         {isSignUp && (
           <Input
             label="Confirm Password"
@@ -151,11 +139,8 @@ export default function Auth() {
           />
         )}
 
-        {error && (
-          <p className="text-sm text-red-400">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-400">{error}</p>}
 
-        {/* Submit Button */}
         <Button
           label={isSignUp ? "Sign Up" : "Sign In"}
           type="submit"
@@ -165,7 +150,6 @@ export default function Auth() {
         />
       </form>
 
-      {/* Sign in or sign up Button */}
       <Button
         label={isSignUp ? "Switch to Sign In" : "Switch to Sign Up"}
         type="button"
