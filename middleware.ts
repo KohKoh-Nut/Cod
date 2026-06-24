@@ -2,36 +2,39 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        return NextResponse.next();
+    }
+
     let response = NextResponse.next({
         request: { headers: request.headers },
     });
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll();
-                },
-                setAll(cookiesToSet) {
-                    // mirror cookies onto the request so they're visible downstream
-                    cookiesToSet.forEach(({ name, value }) =>
-                        request.cookies.set(name, value),
-                    );
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+            getAll() {
+                return request.cookies.getAll();
+            },
+            setAll(cookiesToSet) {
+                // mirror cookies onto the request so they're visible downstream
+                cookiesToSet.forEach(({ name, value }) =>
+                    request.cookies.set(name, value),
+                );
 
-                    // rebuild the response so it picks up the updated request headers
-                    response = NextResponse.next({
-                        request: { headers: request.headers },
-                    });
+                // rebuild the response so it picks up the updated request headers
+                response = NextResponse.next({
+                    request: { headers: request.headers },
+                });
 
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        response.cookies.set(name, value, options),
-                    );
-                },
+                cookiesToSet.forEach(({ name, value, options }) =>
+                    response.cookies.set(name, value, options),
+                );
             },
         },
-    );
+    });
 
     // use getUser() here, not getSession() - getSession() just reads the cookie
     // and doesn't verify it, so it's not safe for auth checks in middleware
