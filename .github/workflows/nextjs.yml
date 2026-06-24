@@ -74,11 +74,13 @@ jobs:
             - name: Install dependencies
               run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
-            # --- MODIFIED STEP ---
+            # --- UPDATED BUILD STEP ---
             - name: Build with Next.js
               env:
-                  # Injects your GitHub repository variable into the Next.js compilation step
+                  # Pulls your repository variable configuration
                   NEXT_PUBLIC_WANDBOX_PROXY: ${{ vars.NEXT_PUBLIC_WANDBOX_PROXY }}
+                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
               run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
             - name: Upload artifact
