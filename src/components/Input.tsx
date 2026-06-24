@@ -6,7 +6,7 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string;
 }
 
-// Wraps a native input with label + error text, both rendered through Text
+// wraps a native input with label + error text, both rendered through Text
 export default function InputField({
     label,
     error,
@@ -14,7 +14,7 @@ export default function InputField({
     className = "",
     ...props
 }: InputFieldProps) {
-    // error state swaps border color, base classes stay the same otherwise
+    // error state just swaps the border color, rest stays the same
     const inputClasses = [
         "bg-slate-700 text-white border px-4 py-2",
         "focus:outline-none transition-colors w-full font-mono",

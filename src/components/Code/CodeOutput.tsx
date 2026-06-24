@@ -19,13 +19,13 @@ export default function CodeOutput({
     const inputRef = useRef<HTMLInputElement>(null);
     const [draft, setDraft] = useState<string>("");
 
-    // Auto-scroll to bottom on new lines
+    // auto-scroll to bottom on new lines
     useEffect(() => {
         const el = scrollRef.current;
         if (el) el.scrollTop = el.scrollHeight;
     }, [lines]);
 
-    // Focus input whenever terminal is waiting
+    // focus the input whenever the terminal starts waiting
     useEffect(() => {
         if (waitingForInput) inputRef.current?.focus();
     }, [waitingForInput]);
@@ -48,7 +48,7 @@ export default function CodeOutput({
 
     return (
         <div className="font-mono text-xs w-full h-full flex flex-col overflow-hidden bg-burnt-charcoal text-fossil-bone">
-            {/* Header */}
+            {/* header */}
             <div className="font-bold text-xs uppercase tracking-wider w-full px-4 py-2 pt-3 flex items-center justify-between bg-canyon-floor border-b border-crushed-clay">
                 <span>Console Output</span>
                 {isLoading && (
@@ -63,7 +63,7 @@ export default function CodeOutput({
                 )}
             </div>
 
-            {/* Output lines */}
+            {/* output lines */}
             <div
                 ref={scrollRef}
                 className="flex-1 overflow-y-auto p-4 leading-relaxed space-y-0.5"
@@ -85,7 +85,7 @@ export default function CodeOutput({
                     ))
                 )}
 
-                {/* Inline input row — appears at bottom when waiting */}
+                {/* inline input row, shows up at the bottom when waiting */}
                 {waitingForInput && (
                     <div className="flex items-center gap-1 mt-1">
                         <span className="text-amber-300 select-none">&gt;</span>
