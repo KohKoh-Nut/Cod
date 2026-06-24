@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 
-// Layout variants: controls size, padding, and hover/active scale behavior
+// layout variants - size, padding, hover/active scale behavior
 const buttonLayout = cva(
     "font-bold font-mambo shrink-0 flex items-center justify-center c-transition border-2",
     {
@@ -24,7 +24,7 @@ const buttonLayout = cva(
     },
 );
 
-// Theme variants: controls border, background, and text color per interaction state
+// theme variants - border, background, text color per interaction state
 const buttonTheme = cva(
     "selection:text-burnt-ochre selection:bg-canyon-flash cursor-pointer",
     {
@@ -60,8 +60,7 @@ interface ButtonProps
         VariantProps<typeof buttonTheme> {
     label: string;
     type?: "submit" | "button" | "reset";
-    // when provided, renders a Next.js Link instead of a <button>
-    link?: string;
+    link?: string; // when provided, renders a next/link instead of a <button>
     className?: string;
     aria?: string;
     onClick?: () => void;
@@ -69,7 +68,7 @@ interface ButtonProps
     onMouseLeave?: () => void;
 }
 
-// Renders either a Next.js Link or a plain button depending on whether `link` is passed
+// renders either a next/link or a plain button depending on whether `link` is passed
 export default function Button({
     label,
     link,

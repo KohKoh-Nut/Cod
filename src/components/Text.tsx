@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { isExternalLink } from "@/utils/linkChecker";
 
-// Layout variants: font, spacing, size, leading, tracking per type
+// layout variants - font, spacing, size, leading, tracking per type
 const textLayout = cva(
     "font-mono text-justify text-pretty hyphens-auto lang='en'",
     {
@@ -54,7 +54,7 @@ const textLayout = cva(
     },
 );
 
-// Theme variants: color, background, border, selection highlight per state
+// theme variants - color, background, border, selection highlight per state
 const textTheme = cva("c-transition", {
     variants: {
         border: {
@@ -84,8 +84,8 @@ const textTheme = cva("c-transition", {
     },
 });
 
-// maps type+level to html tag and default styles
-// headers use "header_1", "header_2" etc keys since level changes the tag
+// maps type+level to the html tag and its defaults
+// headers need the level suffix (header_1, header_2...) since level changes the tag
 const typeConfig = {
     none: {
         tag: "span",
@@ -155,12 +155,11 @@ interface TextProps
     label?: string;
     link?: string;
     children?: React.ReactNode;
-    // override the resolved tag when needed
-    as?: keyof React.JSX.IntrinsicElements;
+    as?: keyof React.JSX.IntrinsicElements; // override the resolved tag if needed
     className?: string;
 }
 
-// Renders text as the correct tag based on type/level, falls back to Link for internal urls
+// renders the right tag based on type/level, falls back to next/link for internal urls
 export default function Text({
     label,
     link,
@@ -175,7 +174,7 @@ export default function Text({
     border,
     bg,
 }: TextProps) {
-    // headers need the level suffix to match typeConfig, e.g "header_1"
+    // headers need the level suffix to match typeConfig keys, e.g "header_1"
     const lookupKey =
         type === "header" && level !== "none" ? `${type}_${level}` : type;
 
@@ -200,7 +199,7 @@ export default function Text({
         className,
     );
 
-    // internal links use next Link for client side nav
+    // internal links use next/link for client side nav
     if (type === "url" && !isExternalLink(link ?? "") && !as) {
         return (
             <Link href={link ?? "/"} className={classes}>
@@ -209,7 +208,7 @@ export default function Text({
         );
     }
 
-    // external links get target blank + rel for security
+    // external links / raw anchors get target blank + rel for security
     const anchorProps =
         FinalTag === "a"
             ? { href: link, target: "_blank", rel: "noopener noreferrer" }

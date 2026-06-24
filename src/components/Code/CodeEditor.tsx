@@ -19,7 +19,7 @@ const MonacoEditorInner = dynamic(
     },
 );
 
-// Monaco uses "cpp" but internally calls it "cpp" - remap display names if needed
+// monaco's "cpp" id doesn't match every display name we use, remap here
 const MONACO_LANGUAGE_MAP: Record<string, string> = {
     cpp: "cpp",
     "c++": "cpp",
