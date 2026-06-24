@@ -71,8 +71,6 @@ export const CODE_SAMPLES: Record<string, string> = {
         "}",
     ].join("\n"),
 
-    kotlin: ["fun main() {", '    println("Hello, World!")', "}"].join("\n"),
-
     swift: ['print("Hello, World!")'].join("\n"),
 
     php: ["<?php", 'echo "Hello, World!\\n";'].join("\n"),
@@ -85,7 +83,13 @@ export const CODE_SAMPLES: Record<string, string> = {
         'puts greet("World")',
     ].join("\n"),
 
-    scala: ["@main def hello() =", '  println("Hello, World!")'].join("\n"),
+    scala: [
+        "object HelloWorld {",
+        "   def main(args: Array[String]): Unit = {",
+        '       println("Hello, World!")',
+        "   }",
+        "}",
+    ].join("\n"),
 
     perl: [
         "use strict;",
@@ -118,6 +122,8 @@ export const CODE_SAMPLES: Record<string, string> = {
         "main :: IO ()",
         'main = putStrLn (greet "World")',
     ].join("\n"),
+
+    kotlin: ["fun main() {", '    println("Hello, World!")', "}"].join("\n"),
 };
 
 // Fallback if a language somehow isn't in the map
