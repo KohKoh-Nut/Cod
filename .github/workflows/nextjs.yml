@@ -74,7 +74,6 @@ jobs:
             - name: Install dependencies
               run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
-            # --- UPDATED BUILD STEP ---
             - name: Build with Next.js
               env:
                   # Pulls your repository variable configuration
