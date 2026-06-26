@@ -39,26 +39,28 @@ export default function NavBar() {
 
     return (
         <main ref={navRef}>
-            {/* Main Trigger Button */}
-            <Button
-                label="Menu"
-                onClick={handleCodeClick}
-                className="fixed bottom-6 left-6 text-base pt-1 z-50"
-            />
+            <div className="fixed bottom-6 left-6 z-50">
+                {/* Main Trigger Button */}
+                <Button
+                    label="Code"
+                    onClick={handleCodeClick}
+                    className="relative text-base pt-1"
+                />
 
-            {/* Sub-menu Links Popover */}
-            {isOpen && (
-                <div className="flex flex-col justify-between absolute bottom-6 left-30 z-50">
-                    {NAV_LINKS.map((item) => (
-                        <Button
-                            key={item.label}
-                            label={item.label}
-                            link={item.link}
-                            onClick={() => setIsOpen(false)}
-                        />
-                    ))}
-                </div>
-            )}
+                {/* Sub-menu Links Popover, anchored to the button above it */}
+                {isOpen && (
+                    <div className="flex flex-col justify-between absolute bottom-full left-0 mb-2 gap-1">
+                        {NAV_LINKS.map((item) => (
+                            <Button
+                                key={item.label}
+                                label={item.label}
+                                link={item.link}
+                                onClick={() => setIsOpen(false)}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
         </main>
     );
 }
