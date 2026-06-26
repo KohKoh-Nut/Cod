@@ -24,9 +24,8 @@ export function useShareCode(
             } = await supabase.auth.getSession();
 
             if (!session) {
-                alert("You must be logged in to share code!");
                 setIsSharing(false);
-                return null;
+                return "AUTH_REQUIRED";
             }
 
             const userId = session.user.id;

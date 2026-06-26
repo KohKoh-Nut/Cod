@@ -45,7 +45,10 @@ export default function Home() {
 
     const { copy, copied } = useCopyCode();
     const { saveCode } = useSaveCode();
-    const { inputRef, triggerUpload, handleFileChange } = useUploadCode(setCode, isReadOnly);
+    const { inputRef, triggerUpload, handleFileChange } = useUploadCode(
+        setCode,
+        isReadOnly,
+    );
 
     // Sync initial workspace state from shared link or forked storage
     useEffect(() => {
@@ -135,23 +138,30 @@ export default function Home() {
 
     const buttonList = [
         { label: "save", onClick: () => saveCode(code) },
-        {
-            label: "upload",
-            onClick: isReadOnly ? undefined : triggerUpload,
-            disabled: isReadOnly,
-        },
+        ...(!isReadOnly
+            ? [
+                  {
+                      label: "upload",
+                      onClick: isReadOnly ? undefined : triggerUpload,
+                      disabled: isReadOnly,
+                  },
+              ]
+            : []),
         { label: copied ? "copied!" : "copy", onClick: () => copy(code) },
-        {
-            label: "clear",
-            onClick: handleClear,
-            disabled: isReadOnly,
-        },
+        ...(!isReadOnly
+            ? [
+                  {
+                      label: "clear",
+                      onClick: handleClear,
+                  },
+              ]
+            : []),
         isReadOnly
             ? { label: "fork", onClick: handleFork }
             : {
-                label: isSharing ? "sharing..." : "share",
-                onClick: onShareButtonClick,
-            },
+                  label: isSharing ? "sharing..." : "share",
+                  onClick: onShareButtonClick,
+              },
         { label: isLoading ? "running..." : "run", onClick: handleRunCode },
     ];
 
@@ -177,8 +187,8 @@ export default function Home() {
         <main className="c-page-layout rounded-none">
             {/* Toolbar section */}
             <div className="flex flex-row justify-start gap-4 p-4 items-center flex-wrap rounded-none">
-                <Text label="Cod" />
-                <Text label={`Time  ${timeString}`} />
+                <Text label="COD" formatting="bold"/>
+                <Text label={`| Time  ${timeString}`} />
 
                 <select
                     value={language}

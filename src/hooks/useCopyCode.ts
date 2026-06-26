@@ -1,17 +1,18 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export function useCopyCode() {
-  const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-  const copy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
+    const copy = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
 
-  return { copy, copied };
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error("Failed to copy:", err);
+        }
+    };
+
+    return { copy, copied };
 }

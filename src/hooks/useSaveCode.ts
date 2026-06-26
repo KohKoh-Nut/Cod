@@ -1,20 +1,28 @@
 export function useSaveCode() {
-  const saveCode = (content: string) => {
-    const filename = window.prompt('Enter file name', 'code.txt');
-    if (!filename) return; // user cancelled
+    const saveCode = (content: string) => {
+        const fileName = window.prompt("Enter file name", "code.txt");
+        if (!fileName) return;
 
-    const finalName = filename.endsWith('.txt') ? filename : `${filename}.txt`;
+        // Ensure the file ends with a .txt extension
+        const finalName = fileName.endsWith(".txt")
+            ? fileName
+            : `${fileName}.txt`;
 
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+        // Create a blob and trigger a download via a temporary link
+        const blob = new Blob([content], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = finalName;
-    link.click();
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = finalName;
 
-    URL.revokeObjectURL(url);
-  };
+        // Append, click, and cleanup
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-  return { saveCode };
+        URL.revokeObjectURL(url);
+    };
+
+    return { saveCode };
 }
