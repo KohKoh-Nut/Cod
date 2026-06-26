@@ -1,4 +1,5 @@
 "use client";
+
 import { useRef, useEffect, useState, KeyboardEvent } from "react";
 import type { TerminalLine } from "@/hooks/useCodeExecution";
 
@@ -9,6 +10,13 @@ interface CodeOutputProps {
     onSubmitInput: (value: string) => void;
 }
 
+const LINE_COLORS: Record<TerminalLine["type"], string> = {
+    output: "text-fg",
+    error: "text-error",
+    input: "text-warning",
+    info: "text-comment italic",
+};
+
 export default function CodeOutput({
     lines,
     isLoading,
@@ -17,39 +25,36 @@ export default function CodeOutput({
 }: CodeOutputProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const [draft, setDraft] = useState<string>("");
+    const [inputValue, setInputValue] = useState("");
 
-    // auto-scroll to bottom on new lines
+    // Auto-scroll to bottom when new text lines arrive
     useEffect(() => {
-        const el = scrollRef.current;
-        if (el) el.scrollTop = el.scrollHeight;
+        const container = scrollRef.current;
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
     }, [lines]);
 
-    // focus the input whenever the terminal starts waiting
+    // Focus input field when waiting for user input
     useEffect(() => {
-        if (waitingForInput) inputRef.current?.focus();
+        if (waitingForInput) {
+            inputRef.current?.focus();
+        }
     }, [waitingForInput]);
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            onSubmitInput(draft);
-            setDraft("");
+            onSubmitInput(inputValue);
+            setInputValue("");
         }
     };
 
-    const lineColor: Record<TerminalLine["type"], string> = {
-        output: "text-fossil-bone",
-        error: "text-red-400",
-        input: "text-amber-300",
-        info: "text-comment italic",
-    };
-
-    const isEmpty = lines.length === 0 && !isLoading;
+    const hasNoOutput = lines.length === 0 && !isLoading;
 
     return (
-        <div className="font-mono text-xs w-full h-full flex flex-col overflow-hidden bg-burnt-charcoal text-fossil-bone">
-            {/* header */}
-            <div className="font-bold text-xs uppercase tracking-wider w-full px-4 py-2 pt-3 flex items-center justify-between bg-canyon-floor border-b border-crushed-clay">
+        <div className="font-mono text-xs w-full h-full flex flex-col overflow-hidden bg-bg text-fg rounded-none">
+            {/* Header section */}
+            <div className="font-bold text-xs uppercase tracking-wider w-full px-4 py-2 pt-3 flex items-center justify-between bg-bg-surface border-b border-border rounded-none">
                 <span>Console Output</span>
                 {isLoading && (
                     <span className="text-warning animate-pulse normal-case tracking-normal font-normal">
@@ -57,26 +62,26 @@ export default function CodeOutput({
                     </span>
                 )}
                 {waitingForInput && !isLoading && (
-                    <span className="text-amber-300 normal-case tracking-normal font-normal">
+                    <span className="text-warning normal-case tracking-normal font-normal">
                         waiting for input…
                     </span>
                 )}
             </div>
 
-            {/* output lines */}
+            {/* Terminal logs list */}
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 leading-relaxed space-y-0.5"
+                className="flex-1 overflow-y-auto p-4 leading-relaxed space-y-0.5 rounded-none"
             >
-                {isEmpty ? (
+                {hasNoOutput ? (
                     <span className="text-comment italic">
                         Click &quot;run&quot; to see results here…
                     </span>
                 ) : (
-                    lines.map((line, i) => (
+                    lines.map((line, index) => (
                         <div
-                            key={i}
-                            className={`whitespace-pre-wrap text-sm ${lineColor[line.type]}`}
+                            key={index}
+                            className={`whitespace-pre-wrap text-sm ${LINE_COLORS[line.type]}`}
                         >
                             {line.type === "input"
                                 ? `> ${line.text}`
@@ -85,17 +90,17 @@ export default function CodeOutput({
                     ))
                 )}
 
-                {/* inline input row, shows up at the bottom when waiting */}
+                {/* Input prompt line */}
                 {waitingForInput && (
-                    <div className="flex items-center gap-1 mt-1">
-                        <span className="text-amber-300 select-none">&gt;</span>
+                    <div className="flex items-center gap-1 mt-1 rounded-none">
+                        <span className="text-warning select-none">&gt;</span>
                         <input
                             ref={inputRef}
                             type="text"
-                            value={draft}
-                            onChange={(e) => setDraft(e.target.value)}
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            className="flex-1 bg-transparent outline-none caret-amber-300 text-amber-300 text-sm"
+                            className="flex-1 bg-transparent outline-none caret-warning text-warning text-sm rounded-none"
                             placeholder="type and press Enter…"
                             autoComplete="off"
                             spellCheck={false}

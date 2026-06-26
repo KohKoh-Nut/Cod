@@ -2,9 +2,9 @@ import { twMerge } from "tailwind-merge";
 import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 
-// layout variants - size, padding, hover/active scale behavior
+// Base layout configurations like sizing and animations
 const buttonLayout = cva(
-    "font-bold font-mambo shrink-0 flex items-center justify-center c-transition border-2",
+    "font-bold font-mambo shrink-0 flex items-center justify-center c-transition border-2 rounded-none",
     {
         variants: {
             size: {
@@ -24,9 +24,9 @@ const buttonLayout = cva(
     },
 );
 
-// theme variants - border, background, text color per interaction state
+// Color and border styles for different states
 const buttonTheme = cva(
-    "selection:text-burnt-ochre selection:bg-canyon-flash cursor-pointer",
+    "selection:text-abyssal-bark selection:bg-apricot-dust cursor-pointer rounded-none",
     {
         variants: {
             border: {
@@ -37,10 +37,10 @@ const buttonTheme = cva(
             bg: {
                 none: "bg-transparent hover:bg-transparent active:bg-transparent",
                 muted: "bg-transparent hover:bg-bg-surface active:bg-bg-surface",
-                light: "bg-bg-surface hover:bg-border-65 active:bg-border-65",
+                light: "bg-bg-surface hover:bg-crushed-clay active:bg-crushed-clay",
             },
             text: {
-                muted: "text-fg/0 hover:text-brand active:text-brand tracking-wide",
+                muted: "text-fg-muted opacity-40 hover:text-brand hover:opacity-100 active:text-brand tracking-wide",
                 light: "text-fg-muted hover:text-fg active:text-fg",
                 dark: "text-fg hover:text-brand active:text-brand",
                 brand: "text-brand hover:text-brand-hover active:text-brand-hover tracking-tight",
@@ -60,7 +60,7 @@ interface ButtonProps
         VariantProps<typeof buttonTheme> {
     label: string;
     type?: "submit" | "button" | "reset";
-    link?: string; // when provided, renders a next/link instead of a <button>
+    link?: string;
     className?: string;
     aria?: string;
     onClick?: () => void;
@@ -68,7 +68,6 @@ interface ButtonProps
     onMouseLeave?: () => void;
 }
 
-// renders either a next/link or a plain button depending on whether `link` is passed
 export default function Button({
     label,
     link,
@@ -82,22 +81,35 @@ export default function Button({
     type = "button",
     ...props
 }: ButtonProps) {
-    const classes = twMerge(
+    // Combine all variant and custom classes together
+    const combinedClasses = twMerge(
         buttonLayout({ size, scale }),
         buttonTheme({ border, bg, text }),
         className,
     );
 
+    // Render as a link if a URL is provided
     if (link) {
         return (
-            <Link href={link} aria-label={aria} className={classes} {...props}>
+            <Link
+                href={link}
+                aria-label={aria}
+                className={combinedClasses}
+                {...props}
+            >
                 {label}
             </Link>
         );
     }
 
+    // Otherwise render as a standard button
     return (
-        <button type={type} aria-label={aria} className={classes} {...props}>
+        <button
+            type={type}
+            aria-label={aria}
+            className={combinedClasses}
+            {...props}
+        >
             {label}
         </button>
     );

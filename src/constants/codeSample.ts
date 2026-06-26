@@ -1,5 +1,5 @@
 // Default starter code shown in the editor when switching languages.
-// Kept simple — just enough to verify the language runs correctly.
+// Kept simple, just enough to verify the language runs correctly.
 
 export const CODE_SAMPLES: Record<string, string> = {
     python: [

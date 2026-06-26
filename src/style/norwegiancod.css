@@ -1,15 +1,23 @@
 :root {
-  --bg: #0a0a0f;                 /* Deep, dark cyber void */
-  --bg_surface: #12121e;         /* Sleek, metallic terminal surface */
-  --border: #1f1f38;             /* Low-lit neon grid border */
-  --fg: #c0caf5;                 /* Tokyo night vibrant silver/white text */
-  --fg_muted: #565f89;           /* Muted holo-grey for secondary text */
-  --comment: #414868;            /* Ghostly blue-grey for code comments */
-  --brand: #ff007f;              /* High-voltage neon magenta/pink */
-  --brand_hover: #cc0066;        /* Overdriven, deeper laser pink */
-  --interactive: #bb9af7;        /* Electric neon purple/violet */
-  --interactive_hover: #7aa2f7;  /* Sharp cyber sky-blue */
-  --success: #73daca;            /* Radioactive mint/cyan green */
-  --warning: #e0af68;            /* Warning beacon neon orange/yellow */
-  --error: #f7768e;              /* Critical system error red */
+    /* Core Canvas & Layering */
+    --bg: #0b0c10; /* Deep charcoal void (Claude app style) */
+    --bg_surface: #16171d; /* Elevated editor panels & sidebar backgrounds */
+    --bg_element: #20222b; /* Code blocks, active input boxes, and tabs */
+    --border: #2a2d3a; /* Subtle, low-contrast UI divider lines */
+
+    /* Typography */
+    --fg: #e2e4e9; /* Soft white/silver (eliminates eye strain) */
+    --fg_muted: #8a8f9f; /* Secondary text, labels, and file trees */
+    --comment: #62677c; /* Clean, legible comment gray */
+
+    /* Brand & Actions (Sleek Indigo/Violet Accent) */
+    --brand: #7c4dff; /* Focused neon indigo */
+    --brand_hover: #651fff; /* Deeper accent shift */
+    --interactive: #90caf9; /* Cool utility link blue */
+    --interactive_hover: #e3f2fd; /* Ghost white tint */
+
+    /* System Status (Clean, less saturated) */
+    --success: #4caf50; /* Non-blinding indicator green */
+    --warning: #ffb74d; /* Clean amber warning */
+    --error: #ef5350; /* Muted dashboard error crimson */
 }

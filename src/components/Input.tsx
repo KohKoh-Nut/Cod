@@ -6,7 +6,6 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string;
 }
 
-// wraps a native input with label + error text, both rendered through Text
 export default function InputField({
     label,
     error,
@@ -14,18 +13,19 @@ export default function InputField({
     className = "",
     ...props
 }: InputFieldProps) {
-    // error state just swaps the border color, rest stays the same
-    const inputClasses = [
-        "bg-slate-700 text-white border px-4 py-2",
-        "focus:outline-none transition-colors w-full font-mono",
-        error
-            ? "border-red-400 focus:border-red-400"
-            : "border-slate-600 focus:border-cyan-500",
-        className,
-    ].join(" ");
+    // Dynamic styles based on error state
+    const inputStyles = `
+        bg-bg-element text-fg border px-4 py-2 rounded-none 
+        focus:outline-none transition-colors w-full font-mono
+        ${error ? "border-error focus:border-error" : "border-border focus:border-interactive"} 
+        ${className}
+    `
+        .trim()
+        .replace(/\s+/g, " ");
 
     return (
         <div className="flex flex-col space-y-1 w-full">
+            {/* Input Label */}
             {label && (
                 <Text
                     type="description"
@@ -37,13 +37,14 @@ export default function InputField({
                 </Text>
             )}
 
-            <input type={type} className={inputClasses} {...props} />
+            <input type={type} className={inputStyles} {...props} />
 
+            {/* Error Message */}
             {error && (
                 <Text
                     type="description"
                     color="important"
-                    className="text-red-400 text-xs flex items-center gap-1 mt-1"
+                    className="text-error text-xs flex items-center gap-1 mt-1"
                 >
                     <span className="font-bold">x</span>
                     {error}

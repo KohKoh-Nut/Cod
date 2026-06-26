@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef } from "react";
 
 export function useAutoScroll(dependency: unknown) {
@@ -8,11 +9,13 @@ export function useAutoScroll(dependency: unknown) {
         const container = scrollRef.current;
         if (!container) return;
 
-        // don't hijack scroll if the user has scrolled up to read earlier content
+        // Calculate how far the user is from the bottom of the container
         const distanceFromBottom =
             container.scrollHeight -
             container.scrollTop -
             container.clientHeight;
+
+        // Only scroll down if the user is close to the bottom
         const isNearBottom = distanceFromBottom <= 150;
 
         if (isNearBottom || container.scrollTop === 0) {
