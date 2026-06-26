@@ -1,43 +1,49 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import Button from "@/components/Button";
 
 const NAV_LINKS = [
+    { label: "Code", link: "/" },
     { label: "Profile", link: "/profile" },
     { label: "Settings", link: "/settings" },
 ];
 
 export default function NavBar() {
     const [isOpen, setIsOpen] = useState(false);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const navRef = useRef<HTMLElement | null>(null);
 
-    // Cancel active closure actions and show the sub-menu immediately
-    const handleMouseEnter = () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        setIsOpen(true);
-    };
+    const toggleMenu = () => setIsOpen((prev) => !prev);
 
-    // Keep the sub-menu visible briefly to ease hover transition gaps
-    const handleMouseLeave = () => {
-        timeoutRef.current = setTimeout(() => setIsOpen(false), 300);
-    };
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleOutsideClick = (event: MouseEvent) => {
+            if (
+                navRef.current &&
+                !navRef.current.contains(event.target as Node)
+            ) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () =>
+            document.removeEventListener("mousedown", handleOutsideClick);
+    }, [isOpen]);
 
     const handleCodeClick = () => {
-        window.location.hash = "";
-        window.location.href = window.location.origin + "/Cod/";
+        toggleMenu();
     };
 
     return (
-        <main>
+        <main ref={navRef}>
             {/* Main Trigger Button */}
             <Button
-                label="Code"
+                label="Menu"
                 onClick={handleCodeClick}
                 className="fixed bottom-6 left-6 text-base pt-1 z-50"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
             />
 
             {/* Sub-menu Links Popover */}
@@ -48,8 +54,7 @@ export default function NavBar() {
                             key={item.label}
                             label={item.label}
                             link={item.link}
-                            onMouseEnter={handleMouseEnter}
-                            onMouseLeave={handleMouseLeave}
+                            onClick={() => setIsOpen(false)}
                         />
                     ))}
                 </div>

@@ -168,14 +168,16 @@ export default function Home() {
     ];
 
     // Layout configuration styles
+    // Below `md` (phone portrait): stack editor over output.
+    // `md` and up: side-by-side as before.
     const containerClass =
-        "w-full min-h-0 flex-1 flex flex-row justify-between items-stretch gap-4 bg-bg text-fg rounded-none";
+        "w-full min-h-0 flex-1 flex flex-col md:flex-row justify-between items-stretch gap-4 bg-bg text-fg rounded-none";
     const editOutWrapperClass =
-        "h-full min-h-0 min-w-0 flex-1 flex flex-row justify-between gap-4 rounded-none";
+        "h-full min-h-0 min-w-0 flex-1 flex flex-col md:flex-row justify-between gap-4 rounded-none";
     const editorContainerClass =
-        "min-w-0 flex flex-col items-stretch h-full flex-1 rounded-none";
+        "min-w-0 min-h-0 flex flex-col items-stretch w-full h-full md:h-full flex-1 rounded-none";
     const outputContainerClass =
-        "min-h-0 overflow-hidden h-full flex-1 rounded-none";
+        "min-h-0 min-w-0 overflow-hidden w-full flex-1 rounded-none";
 
     if (isInitialLoading) {
         return (
