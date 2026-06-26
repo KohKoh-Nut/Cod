@@ -1,7 +1,8 @@
 import React from "react";
+import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { cva, type VariantProps } from "class-variance-authority";
-import Link from "next/link";
+
 import { isExternalLink } from "@/utils/linkChecker";
 
 // Sizing, line heights, and typography layout variations

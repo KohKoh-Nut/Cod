@@ -1,22 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import { useTimer } from "@/hooks/useTimer";
 import {
     useCodeExecution,
     SUPPORTED_LANGUAGES,
 } from "@/hooks/useCodeExecution";
-import { useTimer } from "@/hooks/useTimer";
-import { INITIAL_PYTHON_CODE } from "@/constants/codeSample";
 import { useShareCode, ShareHistoryEntry } from "@/hooks/useShareCode";
-import { supabase } from "@/utils/supabase-client";
-import ButtonBar from "@/modules/ButtonBar";
+import { useCopyCode } from "@/hooks/useCopyCode";
+import { useUploadCode } from "@/hooks/useUploadCode";
+import Text from "@/components/Text";
 import CodeOutput from "@/components/Code/CodeOutput";
 import CodeEditor from "@/components/Code/CodeEditor";
-import Text from "@/components/Text";
+import ButtonBar from "@/modules/ButtonBar";
 import ShareModal from "@/modules/SharePanel";
-import { useCopyCode } from "@/hooks/useCopyCode";
-import { useSaveCode } from "@/hooks/useSaveCode";
-import { useUploadCode } from "@/hooks/useUploadCode";
+import SavePanel from "@/modules/SavePanel";
+import { supabase } from "@/utils/supabase-client";
+import { INITIAL_PYTHON_CODE } from "@/constants/codeSample";
 
 export default function Home() {
     const { timeString } = useTimer();
@@ -40,14 +41,15 @@ export default function Home() {
     const [isReadOnly, setIsReadOnly] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
     const [generatedShareUrl, setGeneratedShareUrl] = useState("");
 
     const { copy, copied } = useCopyCode();
-    const { saveCode } = useSaveCode();
     const { inputRef, triggerUpload, handleFileChange } = useUploadCode(
         setCode,
         isReadOnly,
+        setLanguage,
     );
 
     // Sync initial workspace state from shared link or forked storage
@@ -119,7 +121,7 @@ export default function Home() {
         const url = await handleShare();
         if (url) {
             setGeneratedShareUrl(url);
-            setIsModalOpen(true);
+            setIsShareModalOpen(true);
         }
     };
 
@@ -137,7 +139,7 @@ export default function Home() {
     };
 
     const buttonList = [
-        { label: "save", onClick: () => saveCode(code) },
+        { label: "save", onClick: () => setIsSaveModalOpen(true) },
         ...(!isReadOnly
             ? [
                   {
@@ -187,7 +189,7 @@ export default function Home() {
         <main className="c-page-layout rounded-none">
             {/* Toolbar section */}
             <div className="flex flex-row justify-start gap-4 p-4 items-center flex-wrap rounded-none">
-                <Text label="COD" formatting="bold"/>
+                <Text label="COD" formatting="bold" />
                 <Text label={`| Time  ${timeString}`} />
 
                 <select
@@ -214,7 +216,7 @@ export default function Home() {
                 <input
                     ref={inputRef}
                     type="file"
-                    accept=".txt"
+                    accept=".py,.js,.ts,.c,.cpp,.cc,.cxx,.rs,.r,.go,.rb,.php,.scala,.pl,.sh,.bash,.lua,.hs,.txt"
                     onChange={handleFileChange}
                     className="hidden"
                 />
@@ -252,10 +254,18 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* Save Panel Modal */}
+            <SavePanel
+                isOpen={isSaveModalOpen}
+                onClose={() => setIsSaveModalOpen(false)}
+                code={code}
+                language={language}
+            />
+
             {/* Share Panel Modal Component Overlay */}
             <ShareModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
                 shareUrl={generatedShareUrl}
             />
         </main>

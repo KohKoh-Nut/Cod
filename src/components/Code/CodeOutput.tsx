@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, KeyboardEvent } from "react";
+
 import type { TerminalLine } from "@/hooks/useCodeExecution";
 
 interface CodeOutputProps {
