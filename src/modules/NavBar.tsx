@@ -42,7 +42,7 @@ export default function NavBar() {
             <div className="fixed bottom-6 left-6 z-50">
                 {/* Main Trigger Button */}
                 <Button
-                    label="Code"
+                    label="Menu"
                     onClick={handleCodeClick}
                     className="relative text-base pt-1"
                 />
