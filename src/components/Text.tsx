@@ -1,12 +1,13 @@
 import React from "react";
+import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { cva, type VariantProps } from "class-variance-authority";
-import Link from "next/link";
+
 import { isExternalLink } from "@/utils/linkChecker";
 
-// layout variants - font, spacing, size, leading, tracking per type
+// Sizing, line heights, and typography layout variations
 const textLayout = cva(
-    "font-mono text-justify text-pretty hyphens-auto lang='en'",
+    "font-mono text-justify text-pretty hyphens-auto lang='en' rounded-none",
     {
         variants: {
             type: {
@@ -54,8 +55,8 @@ const textLayout = cva(
     },
 );
 
-// theme variants - color, background, border, selection highlight per state
-const textTheme = cva("c-transition", {
+// Theme states, background styles, and custom selection highlights
+const textTheme = cva("c-transition rounded-none", {
     variants: {
         border: {
             none: "",
@@ -68,13 +69,13 @@ const textTheme = cva("c-transition", {
         color: {
             none: "",
             important:
-                "text-fg selection:text-crimson-creek selection:bg-wildfire",
+                "text-fg selection:text-abyssal-bark selection:bg-magma-dust",
             primary:
-                "text-fg selection:text-bluestone selection:bg-eucalyptus-smoke",
+                "text-fg selection:text-burnt-charcoal selection:bg-outback-sky",
             secondary:
-                "text-fg-muted opacity-80 selection:text-dry-straw selection:bg-spinifex-gold",
-            muted: "text-fg-muted opacity-60 selection:text-dry-moss selection:bg-pale-spinifex",
-            link: "text-brand hover:text-brand-hover active:text-brand-hover selection:text-berry-bramble selection:bg-dusty-mauve",
+                "text-fg-muted opacity-80 selection:text-burnt-charcoal selection:bg-tumbleweed",
+            muted: "text-fg-muted opacity-60 selection:text-abyssal-bark selection:bg-desert-sage",
+            link: "text-brand hover:text-brand-hover active:text-brand-hover selection:text-dusty-parchment selection:bg-dusty-mauve",
         },
     },
     defaultVariants: {
@@ -84,9 +85,8 @@ const textTheme = cva("c-transition", {
     },
 });
 
-// maps type+level to the html tag and its defaults
-// headers need the level suffix (header_1, header_2...) since level changes the tag
-const typeConfig = {
+// Maps text types to HTML elements and fallback styling presets
+const TEXT_TYPE_CONFIGS = {
     none: {
         tag: "span",
         defaultSize: "none",
@@ -143,7 +143,7 @@ const typeConfig = {
     },
 } as const;
 
-const defaultConfig = {
+const DEFAULT_FALLBACK_CONFIG = {
     tag: "p",
     defaultSize: "md",
     defaultFormatting: "none",
@@ -155,11 +155,10 @@ interface TextProps
     label?: string;
     link?: string;
     children?: React.ReactNode;
-    as?: keyof React.JSX.IntrinsicElements; // override the resolved tag if needed
+    as?: keyof React.JSX.IntrinsicElements;
     className?: string;
 }
 
-// renders the right tag based on type/level, falls back to next/link for internal urls
 export default function Text({
     label,
     link,
@@ -174,49 +173,50 @@ export default function Text({
     border,
     bg,
 }: TextProps) {
-    // headers need the level suffix to match typeConfig keys, e.g "header_1"
-    const lookupKey =
+    // Generate the lookup key (e.g., combine header type with its level)
+    const configKey =
         type === "header" && level !== "none" ? `${type}_${level}` : type;
+    const activeConfig =
+        TEXT_TYPE_CONFIGS[configKey as keyof typeof TEXT_TYPE_CONFIGS] ??
+        DEFAULT_FALLBACK_CONFIG;
 
-    const config =
-        typeConfig[lookupKey as keyof typeof typeConfig] ?? defaultConfig;
-    const { tag: Tag, defaultSize, defaultFormatting, defaultColor } = config;
+    // Resolve structural values using user inputs or mapping defaults
+    const ComponentTag = as ?? activeConfig.tag;
+    const activeSize = size ?? activeConfig.defaultSize;
+    const activeFormatting = formatting ?? activeConfig.defaultFormatting;
+    const activeColor = color ?? activeConfig.defaultColor;
 
-    const FinalTag = as ?? Tag;
-    const finalSize = size ?? defaultSize;
-    const finalFormatting = formatting ?? defaultFormatting;
-    const finalColor = color ?? defaultColor;
-
-    const classes = twMerge(
+    // Compile dynamic classes using class-variance-authority and tailwind-merge
+    const combinedClasses = twMerge(
         textLayout({
             type,
             level,
             border,
-            size: finalSize,
-            formatting: finalFormatting,
+            size: activeSize,
+            formatting: activeFormatting,
         }),
-        textTheme({ border, bg, color: finalColor }),
+        textTheme({ border, bg, color: activeColor }),
         className,
     );
 
-    // internal links use next/link for client side nav
+    // Render internal applications links
     if (type === "url" && !isExternalLink(link ?? "") && !as) {
         return (
-            <Link href={link ?? "/"} className={classes}>
+            <Link href={link ?? "/"} className={combinedClasses}>
                 {children ?? label}
             </Link>
         );
     }
 
-    // external links / raw anchors get target blank + rel for security
-    const anchorProps =
-        FinalTag === "a"
+    // Include safety tags for external navigation anchors
+    const customAnchorProps =
+        ComponentTag === "a"
             ? { href: link, target: "_blank", rel: "noopener noreferrer" }
             : {};
 
     return (
-        <FinalTag className={classes} {...anchorProps}>
+        <ComponentTag className={combinedClasses} {...customAnchorProps}>
             {children ?? label}
-        </FinalTag>
+        </ComponentTag>
     );
 }

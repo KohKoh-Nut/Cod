@@ -1,17 +1,22 @@
+import React from "react";
+
 import Button from "@/components/Button";
 
-// reuse the props type from Button rather than redefining them
-type ButtonConfig = React.ComponentProps<typeof Button>;
+type ButtonProps = React.ComponentProps<typeof Button>;
 
 interface ButtonBarProps {
-    buttons: ButtonConfig[];
+    buttons: ButtonProps[];
 }
 
 export default function ButtonBar({ buttons }: ButtonBarProps) {
     return (
         <div className="flex flex-row justify-start gap-2">
-            {buttons.map((button) => (
-                <Button key={button.label} {...button} />
+            {/* Render out the array of configured buttons */}
+            {buttons.map((buttonProps, index) => (
+                <Button
+                    key={`${buttonProps.label}-${index}`}
+                    {...buttonProps}
+                />
             ))}
         </div>
     );

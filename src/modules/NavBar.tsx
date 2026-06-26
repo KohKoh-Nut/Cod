@@ -1,5 +1,7 @@
 "use client";
+
 import { useState, useRef } from "react";
+
 import Button from "@/components/Button";
 
 const NAV_LINKS = [
@@ -8,30 +10,38 @@ const NAV_LINKS = [
 ];
 
 export default function NavBar() {
-    const [isVisible, setIsVisible] = useState(false);
-    const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    function handleMouseEnter() {
-        if (hideTimer.current) clearTimeout(hideTimer.current);
-        setIsVisible(true);
-    }
+    // Cancel active closure actions and show the sub-menu immediately
+    const handleMouseEnter = () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        setIsOpen(true);
+    };
 
-    // delay hiding so the cursor can move between the trigger and the popover
-    function handleMouseLeave() {
-        hideTimer.current = setTimeout(() => setIsVisible(false), 300);
-    }
+    // Keep the sub-menu visible briefly to ease hover transition gaps
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => setIsOpen(false), 300);
+    };
+
+    const handleCodeClick = () => {
+        window.location.hash = "";
+        window.location.href = window.location.origin + "/Cod/";
+    };
 
     return (
         <main>
+            {/* Main Trigger Button */}
             <Button
                 label="Code"
-                link="/"
+                onClick={handleCodeClick}
                 className="fixed bottom-6 left-6 text-base pt-1 z-50"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             />
 
-            {isVisible && (
+            {/* Sub-menu Links Popover */}
+            {isOpen && (
                 <div className="flex flex-col justify-between absolute bottom-6 left-30 z-50">
                     {NAV_LINKS.map((item) => (
                         <Button

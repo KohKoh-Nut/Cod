@@ -27,18 +27,21 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({
-    children,
-}: Readonly<{
+interface RootLayoutProps {
     children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html
             lang="en"
             className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         >
             <body className="h-full flex flex-col">
+                {/* Global Navigation Bar */}
                 <NavBar />
+
+                {/* Main Page Content */}
                 {children}
             </body>
         </html>

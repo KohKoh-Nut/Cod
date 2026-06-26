@@ -1,60 +1,55 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import { supabase } from "@/supabase-client";
+import { supabase } from "@/utils/supabase-client";
 
 export default function Auth() {
     const router = useRouter();
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState("");
-    const [name, setName] = useState("");
-    const [psword, setPsword] = useState("");
-    const [cpsword, setCpsword] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+
+    // Simple helper to validate sign up password rules
+    const validatePassword = (): string | null => {
+        if (password !== confirmPassword) return "Passwords do not match.";
+        if (password.length < 8)
+            return "Password must be at least 8 characters long.";
+        if (!/[0-9]/.test(password))
+            return "Password must contain at least one number.";
+        if (!/[A-Z]/.test(password))
+            return "Password must contain at least one uppercase letter.";
+        if (!/[a-z]/.test(password))
+            return "Password must contain at least one lowercase letter.";
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
+            return "Password must contain at least one special character.";
+        return null;
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
 
+        // Handle Sign Up flow
         if (isSignUp) {
-            if (psword !== cpsword) {
-                setError("Passwords do not match.");
-                return;
-            }
-            if (psword.length < 8) {
-                setError("Password must be at least 8 characters long.");
-                return;
-            }
-            if (!/[0-9]/.test(psword)) {
-                setError("Password must contain at least one number.");
-                return;
-            }
-            if (!/[A-Z]/.test(psword)) {
-                setError(
-                    "Password must contain at least one uppercase letter.",
-                );
-                return;
-            }
-            if (!/[a-z]/.test(psword)) {
-                setError(
-                    "Password must contain at least one lowercase letter.",
-                );
-                return;
-            }
-            if (!/[!@#$%^&*(),.?":{}|<>]/.test(psword)) {
-                setError(
-                    "Password must contain at least one special character.",
-                );
+            const validationError = validatePassword();
+            if (validationError) {
+                setError(validationError);
                 return;
             }
 
+            // Create auth user in Supabase
             const { data: signUpData, error: signUpError } =
                 await supabase.auth.signUp({
                     email,
-                    password: psword,
-                    options: { data: { name } },
+                    password: password,
+                    options: { data: { name: username } },
                 });
 
             if (signUpError) {
@@ -63,13 +58,14 @@ export default function Auth() {
                 return;
             }
 
+            // Insert user profile into public users table
             if (signUpData.user) {
                 const { error: usersError } = await supabase
                     .from("users")
                     .insert({
                         id: signUpData.user.id,
                         email: email,
-                        username: name,
+                        username: username,
                     });
 
                 if (usersError) {
@@ -82,13 +78,16 @@ export default function Auth() {
                 }
             }
 
-            console.log("Signed up successfully!", { email, name });
+            console.log("Signed up successfully!", { email, username });
             router.push("/profile");
-        } else {
+        }
+
+        // Handle Sign In flow
+        else {
             const { error: signInError } =
                 await supabase.auth.signInWithPassword({
                     email,
-                    password: psword,
+                    password: password,
                 });
 
             if (signInError) {
@@ -103,12 +102,12 @@ export default function Auth() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900 p-4">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-bg p-4 rounded-none">
             <form
                 onSubmit={handleSubmit}
-                className="w-full max-w-md p-6 bg-slate-800 shadow-md flex flex-col space-y-4"
+                className="w-full max-w-md p-6 bg-bg-surface border border-border flex flex-col space-y-4 rounded-none"
             >
-                <h2 className="text-2xl font-bold text-white text-center mb-2">
+                <h2 className="text-2xl font-bold text-fg text-center mb-2 font-mono">
                     {isSignUp ? "Create Account" : "Sign In"}
                 </h2>
 
@@ -126,8 +125,8 @@ export default function Auth() {
                         label="Username"
                         type="text"
                         placeholder="Username"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         required
                     />
                 )}
@@ -136,8 +135,8 @@ export default function Auth() {
                     label="Password"
                     type="password"
                     placeholder="Password"
-                    value={psword}
-                    onChange={(e) => setPsword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                 />
 
@@ -146,14 +145,16 @@ export default function Auth() {
                         label="Confirm Password"
                         type="password"
                         placeholder="Confirm Password"
-                        value={cpsword}
-                        onChange={(e) => setCpsword(e.target.value)}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         error={error.includes("match") ? error : undefined}
                         required
                     />
                 )}
 
-                {error && <p className="text-sm text-red-400">{error}</p>}
+                {error && (
+                    <p className="text-sm text-error font-mono">{error}</p>
+                )}
 
                 <Button
                     label={isSignUp ? "Sign Up" : "Sign In"}
@@ -168,7 +169,7 @@ export default function Auth() {
                 label={isSignUp ? "Switch to Sign In" : "Switch to Sign Up"}
                 type="button"
                 size="sm"
-                className="mt-4 underline text-slate-300"
+                className="mt-4 underline text-fg-muted"
                 onClick={() => {
                     setError("");
                     setIsSignUp(!isSignUp);

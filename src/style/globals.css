@@ -4,9 +4,10 @@
 @import "./atlanticcod.css";
 
 @theme {
-    /* #region Color */
+    /* #region Core UI Semantics */
     --color-bg: var(--bg);
     --color-bg-surface: var(--bg_surface);
+    --color-bg-element: var(--bg_element);
     --color-border: var(--border);
     --color-fg: var(--fg);
     --color-fg-muted: var(--fg_muted);
@@ -19,81 +20,56 @@
     --color-warning: var(--warning);
     --color-error: var(--error);
 
-    /* Earth, Ash & Foundations */
+    /* #region Extended Palette & Syntax Spectrum */
+    /* The Void & Deep Shadows */
     --color-abyssal-bark: var(--abyssal_bark);
     --color-burnt-charcoal: var(--burnt_charcoal);
     --color-canyon-floor: var(--canyon_floor);
     --color-crushed-clay: var(--crushed_clay);
+
+    /* The Light & Infrastructure */
     --color-dusty-parchment: var(--dusty_parchment);
     --color-river-silt: var(--river_silt);
 
-    /* Magma, Crimson & Fire */
+    /* Magma / Crimson Spectrum */
     --color-magma-dust: var(--magma_dust);
     --color-wildfire: var(--wildfire);
-    --color-rusty-canyon: var(--rusty_canyon);
-    --color-baked-brick: var(--baked_brick);
-    --color-crimson-creek: var(--crimson_creek);
 
-    /* Mauve, Plum & Dusk Shadows */
+    /* Desert Rose Spectrum */
     --color-desert-rose: var(--desert_rose);
     --color-dusty-mauve: var(--dusty_mauve);
-    --color-wild-plum: var(--wild_plum);
-    --color-berry-bramble: var(--berry_bramble);
-    --color-dusk-shadow: var(--dusk_shadow);
 
-    /* Ochre, Oxide & Apricot Embers */
+    /* Apricot / Ochre Spectrum */
     --color-apricot-dust: var(--apricot_dust);
     --color-canyon-flash: var(--canyon_flash);
-    --color-burnt-ochre: var(--burnt_ochre);
-    --color-iron-oxide: var(--iron_oxide);
-    --color-ember-glow: var(--ember_glow);
 
-    /* Spinifex Gold & Savannah Cumin */
+    /* Gold Spectrum */
     --color-tumbleweed: var(--tumbleweed);
     --color-spinifex-gold: var(--spinifex_gold);
-    --color-dry-straw: var(--dry_straw);
-    --color-roasted-cumin: var(--roasted_cumin);
-    --color-savannah-dusk: var(--savannah_dusk);
 
-    /* Sage, Olive & Forest Shadows */
+    /* Desert Sage Spectrum */
     --color-desert-sage: var(--desert_sage);
     --color-pale-spinifex: var(--pale_spinifex);
-    --color-dusty-olive: var(--dusty_olive);
-    --color-lichen-crust: var(--lichen_crust);
-    --color-dry-moss: var(--dry_moss);
-    --color-eucalyptus-leaf: var(--eucalyptus_leaf);
-    --color-overgrown-fern: var(--overgrown_fern);
-    --color-swamp-murk: var(--swamp_murk);
-    --color-ancient-pine: var(--ancient_pine);
-    --color-midnight-forest: var(--midnight_forest);
 
-    /* Teal, Creek & Shale Green */
+    /* River Ooze / Teal Spectrum */
     --color-shale-green: var(--shale_green);
     --color-river-ooze: var(--river_ooze);
-    --color-deep-teal: var(--deep_teal);
-    --color-sunken-timber: var(--sunken_timber);
-    --color-flooded-creek: var(--flooded_creek);
 
-    /* Outback Skies & Storm Monsoons */
+    /* Outback Sky Spectrum */
     --color-outback-sky: var(--outback_sky);
     --color-eucalyptus-smoke: var(--eucalyptus_smoke);
-    --color-bluestone: var(--bluestone);
-    --color-storm-canopy: var(--storm_canopy);
-    --color-night-monsoon: var(--night_monsoon);
 
-    /* Fossil Bone & Weathered Wood Mounds */
+    /* Chassis Grays & UI Scaffolding */
     --color-fossil-bone: var(--fossil_bone);
     --color-weathered-wood: var(--weathered_wood);
     --color-termite-mound: var(--termite_mound);
-    --color-dried-bark: var(--dried_bark);
-    --color-charred-root: var(--charred_root);
     /* #endregion */
 }
 
 @layer base {
     body {
-        background-color: var(--bg);
-        color: var(--fg);
+        background-color: var(--color-bg);
+        color: var(--color-fg);
         font-family:
             ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -106,73 +82,4 @@
 @utility c-transition {
     @apply transition-all duration-200 ease-in-out;
 }
-
-[class^="c-border-"],
-[class*=" c-border-"] {
-    border-color: var(--current-border-color);
-
-    --current-border-color: var(--border-color);
-
-    &:hover,
-    .group:hover & {
-        --current-border-color: var(--border-hover-color);
-    }
-}
-
-@utility c-border-normal {
-    border-width: 1px;
-    --border-color: var(--color-border);
-    --border-hover-color: var(--color-comment);
-}
-/* #endregion */
-
-/* #region Background */
-[class^="c-bg-"],
-[class*=" c-bg-"] {
-    background-color: var(--current-bg-color);
-
-    --current-bg-color: var(--bg-color);
-
-    &:hover,
-    .group:hover & {
-        --current-bg-color: var(--bg-hover-color);
-    }
-}
-
-@utility c-bg-normal {
-    --bg-color: var(--color-bg-surface);
-    --bg-hover-color: var(--color-charred-root);
-}
-/* #endregion */
-
-/* #region Label */
-[class^="c-label-"],
-[class*=" c-label-"] {
-    @apply font-bold font-mono selection:bg-transparent;
-
-    color: var(--current-label-color);
-    opacity: var(--current-label-opacity);
-    letter-spacing: var(--current-letter-spacing);
-
-    --current-label-color: var(--label-color);
-    --current-label-opacity: var(--label-opacity, 1);
-    --current-letter-spacing: var(--label-letter-spacing, normal);
-
-    &:hover,
-    .group:hover & {
-        --current-label-color: var(--label-hover-color);
-        --current-label-opacity: var(--label-hover-opacity, 1);
-    }
-}
-
-@utility c-label-muted {
-    --label-color: var(--color-fg-muted);
-    --label-hover-color: var(--color-fg);
-}
-
-@utility c-label-normal {
-    --label-color: var(--color-fg);
-    --label-hover-color: var(--color-brand);
-}
-
 /* #endregion */
