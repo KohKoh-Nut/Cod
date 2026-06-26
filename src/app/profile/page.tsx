@@ -122,17 +122,47 @@ export default function ProfilePage() {
                             const previewSnippet =
                                 item.code.slice(0, 80) +
                                 (item.code.length > 80 ? "..." : "");
-                            const sharedLinkAddress = `./#/share/${item.id}`;
+                            const sharedLink = `${window.location.origin}/#/share/${item.id}`;
+
+                            const handleDelete = async (
+                                e: React.MouseEvent,
+                            ) => {
+                                e.stopPropagation(); // Prevent card click
+                                if (
+                                    !confirm(
+                                        "Are you sure you want to delete this module?",
+                                    )
+                                )
+                                    return;
+
+                                const { error } = await supabase
+                                    .from("shares")
+                                    .delete()
+                                    .eq("id", item.id);
+                                if (!error) {
+                                    setMyShares((prev) =>
+                                        prev.filter((s) => s.id !== item.id),
+                                    );
+                                }
+                            };
+
+                            const handleCopyLink = (e: React.MouseEvent) => {
+                                e.stopPropagation(); // Prevent card click
+                                navigator.clipboard.writeText(sharedLink);
+                                alert("Link copied to clipboard!");
+                            };
 
                             return (
-                                <a
+                                <div
                                     key={item.id}
-                                    href={sharedLinkAddress}
-                                    className="block p-4 border border-border rounded-none bg-bg-surface hover:bg-crushed-clay hover:border-comment transition duration-200 ease-in-out group"
+                                    onClick={() =>
+                                        router.push(`./#/share/${item.id}`)
+                                    }
+                                    className="p-4 border border-border rounded-none bg-bg-surface hover:border-comment transition duration-200 cursor-pointer group"
                                 >
-                                    <div className="flex justify-between items-start mb-2 rounded-none">
-                                        <div className="flex items-center gap-3 rounded-none">
-                                            <span className="px-2 py-0.5 bg-bg-element text-interactive font-mono text-xs rounded-none uppercase border border-border">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <span className="px-2 py-0.5 bg-bg text-interactive font-mono text-xs uppercase border border-border">
                                                 {item.language}
                                             </span>
                                             <span className="text-xs text-fg-muted">
@@ -141,26 +171,37 @@ export default function ProfilePage() {
                                                 ).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <span className="text-xs text-fg-muted group-hover:text-brand transition duration-200 ease-in-out flex items-center gap-1">
-                                            Open in IDE &rarr;
-                                        </span>
+
+                                        {/* Action Buttons styled to match your SavePanel */}
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={handleCopyLink}
+                                                className="px-2 py-1 border border-border hover:border-interactive text-fg-muted hover:text-interactive transition text-[10px] uppercase font-bold tracking-wider"
+                                            >
+                                                Copy
+                                            </button>
+                                            <button
+                                                onClick={handleDelete}
+                                                className="px-2 py-1 border border-border hover:border-error text-fg-muted hover:text-error transition text-[10px] uppercase font-bold tracking-wider"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    {/* Code Preview Block */}
-                                    <p className="font-mono text-xs text-river-silt bg-abyssal-bark p-2 rounded-none border border-border whitespace-pre overflow-hidden text-ellipsis">
+                                    {/* Code Preview */}
+                                    <p className="font-mono text-[10px] text-fg-muted bg-bg p-3 rounded-none border border-border whitespace-pre overflow-hidden text-ellipsis">
                                         {previewSnippet || "empty snapshot..."}
                                     </p>
 
-                                    <div className="mt-2 flex gap-4 text-[11px] text-fg-muted rounded-none">
+                                    <div className="mt-3 flex gap-4 text-[10px] text-fg-muted uppercase font-bold tracking-wider">
                                         <span>Lines: {totalLines}</span>
                                         <span>
-                                            Forks/Revisions:{" "}
-                                            {item.history
-                                                ? item.history.length
-                                                : 1}
+                                            Revisions:{" "}
+                                            {item.history?.length ?? 1}
                                         </span>
                                     </div>
-                                </a>
+                                </div>
                             );
                         })}
                     </div>
