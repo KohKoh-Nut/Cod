@@ -10,7 +10,7 @@ interface ButtonBarProps {
 
 export default function ButtonBar({ buttons }: ButtonBarProps) {
     return (
-        <div className="flex flex-row justify-start gap-2">
+        <div className="flex flex-row flex-wrap justify-start gap-2">
             {/* Render out the array of configured buttons */}
             {buttons.map((buttonProps, index) => (
                 <Button
