@@ -14,6 +14,9 @@ import CodeOutput from "@/components/Code/CodeOutput";
 import CodeEditor from "@/components/Code/CodeEditor";
 import Text from "@/components/Text";
 import ShareModal from "@/modules/SharePanel";
+import { useCopyCode } from "@/hooks/useCopyCode";
+import { useSaveCode } from "@/hooks/useSaveCode";
+import { useUploadCode } from "@/hooks/useUploadCode";
 
 export default function Home() {
     const { timeString } = useTimer();
@@ -39,6 +42,10 @@ export default function Home() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [generatedShareUrl, setGeneratedShareUrl] = useState("");
+
+    const { copy, copied } = useCopyCode();
+    const { saveCode } = useSaveCode();
+    const { inputRef, triggerUpload, handleFileChange } = useUploadCode(setCode, isReadOnly);
 
     // Sync initial workspace state from shared link or forked storage
     useEffect(() => {
@@ -121,16 +128,30 @@ export default function Home() {
         );
     };
 
+    const handleClear = () => {
+        if (isReadOnly) return;
+        setCode("");
+    };
+
     const buttonList = [
-        { label: "save" },
-        { label: "copy" },
+        { label: "save", onClick: () => saveCode(code) },
+        {
+            label: "upload",
+            onClick: isReadOnly ? undefined : triggerUpload,
+            disabled: isReadOnly,
+        },
+        { label: copied ? "copied!" : "copy", onClick: () => copy(code) },
+        {
+            label: "clear",
+            onClick: handleClear,
+            disabled: isReadOnly,
+        },
         isReadOnly
             ? { label: "fork", onClick: handleFork }
             : {
-                  label: isSharing ? "sharing..." : "share",
-                  onClick: onShareButtonClick,
-              },
-        { label: "upload" },
+                label: isSharing ? "sharing..." : "share",
+                onClick: onShareButtonClick,
+            },
         { label: isLoading ? "running..." : "run", onClick: handleRunCode },
     ];
 
@@ -179,6 +200,14 @@ export default function Home() {
                 )}
 
                 <ButtonBar buttons={buttonList} />
+
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept=".txt"
+                    onChange={handleFileChange}
+                    className="hidden"
+                />
             </div>
 
             {/* Split Editor and Output panels */}
