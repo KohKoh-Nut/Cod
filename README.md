@@ -4,10 +4,9 @@
     <img src="https://img.shields.io/badge/GitHub_Pages-222222?style=flat-square&logo=githubpages&logoColor=white" alt="GitHub Pages" />
     <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js" />
     <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-    <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
     <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" />
-    <img src="https://img.shields.io/badge/Monaco_Editor-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white" alt="Monaco Editor" />
-    <img src="https://img.shields.io/badge/Judge0-000000?style=flat-square&logo=gnubash&logoColor=white" alt="Judge0" />
+    <img src="https://img.shields.io/badge/Monaco_Editor-007ACC?style=flat-square&logo=vscodium&logoColor=white" alt="Monaco Editor" />
+    <img src="https://img.shields.io/badge/Cloudflare-F48120?style=flat-square&logo=cloudflare&logoColor=white" alt="Cloudflare" />
 </p>
 <p align="left">
     <img src="https://img.shields.io/badge/Deploy-Live-green?style=flat-square" alt="Deploy Status" />   
@@ -15,54 +14,54 @@
     <a href="LICENSE"><img src="https://img.shields.io/github/license/ProjectMambo/MamboFolio?style=flat-square&color=orange" /></a>
 </p>
 
-An AI-guided learning platform tailored for coding.
+A collaborative coding platform to build, share, and learn together.
 
 **Team:** Coding Beach\
 **Level of Achievement:** Gemini
 
 ## Demo
+
 Live site available at: [https://kohkoh-nut.github.io/Cod/](https://kohkoh-nut.github.io/Cod/)
 
 ## Overview
 
-### Scope
+### What is COD?
 
-Cod is an integrated, AI-guided learning platform designed to improve coding education. Instead of acting as a rigid automated grader, Cod provides an interactive, hands-on environment where users can write, execute, and debug code alongside a real-time AI mentor that explains why errors happen and how to conceptually fix them.
+COD is a collaborative coding platform designed to help developers build, share, and learn together. The platform provides an interactive, hands-on environment that enables users to write, execute, and debug code seamlessly. By emphasizing community-driven learning, COD encourages users to share their creations and build directly on top of work done by others. This ecosystem shifts the focus away from pure competition, encouraging a supportive community where developers grow together.
 
 ### Motivation
 
-Traditional competitive programming and learning platforms (like LeetCode or HackerRank) often act as digital brick walls for beginners. They validate code with passing or failing marks, but rarely explain logical fallacies or architectural bugs in a beginner-friendly manner.
+Most online coding tools isolate developers in their own private workspaces. When you want to share your work, get feedback, or show someone a bug, you are forced to copy and paste large blocks of text or take screenshots, which completely breaks the development flow. Furthermore, standard platforms treat code as a dead end; once you submit a script, it just sits there. We created COD because we wanted a workspace that feels alive and connected. We wanted to build a platform where sharing code is as simple as sending a link, and where developers can actively learn from one another by taking existing ideas and instantly expanding upon them in real time.
 
-For "false beginners" those who know basic syntax but struggle to write functional, multi-line scripts. The cognitive gap between theory and execution is massive. Cod bridges this gap by acting less like an examiner and more like a supportive pair-programmer.
+### Project Aim
+
+The primary aim of COD is to lower the barrier to entry for developers of all skill levels by creating a fully integrated, easy-to-use environment in the browser. We want to eliminate the painful setup processes, like downloading compilers, managing local extensions, and configuring confusing terminal paths, that often stop people from coding before they even start. Our ultimate goal is to build a highly interactive network where code is not just written, but shared and remixed, giving users a direct pathway to experiment with and learn from real community projects.
+
+### Why are we different?
+
+Traditional platforms are built for solo work or strict competition, but COD is built entirely around community collaboration.
+Instead of treating shared code as static text on a page, our environment turns every shared script into an active playground. Anyone who clicks a shared link can instantly run the code or fork it into their own workspace to build on top of it without breaking the original creator's work.
+What truly sets us apart is how we track this collaboration. By using a visual tree structure, we map out the exact parent-to-child lineage of every script. You can see the full family tree of how an idea started, who edited it along the way, and all the different branches it created. We turn coding into a collaborative team effort where you can watch your ideas grow across the community.
 
 ## Features
 
-- **Interactive Web IDE:** A sleek, modern browser-based code editor using Monaco Editor to provide a familiar and professional user experience.
+- **Interactive Web IDE** - A high-performance, responsive code editor embedded directly within the web browser, providing users with instant code execution and a responsive multi-language environment.
+- **URL Sharing & Social Integration** - Generates a secure, persistent URL snapshot of any code session that can be shared instantly across the web or published directly to social media networks with a single click.
+- **Tree-Based Fork History** - When a user opens a shared link, they can "fork" the workspace to copy the code directly into their own IDE. The system automatically injects author’s metadata, mapping out a visual tree that tracks original creators, current editors, and the complete parent-to-child relation.
 
-- **Integrated Execution Environment:** A built-in terminal display providing real-time outputs directly next to the codebase.
+## User Stories
 
-- **Contextual AI Canvas:** A dedicated UI sidebar explicitly designed to stream and format AI feedback without disrupting the coding flow.
+### Code Sharers and Creators
 
-## User stories
-**Story 1 – The Guided Learner**
+A developer who builds useful scripts or templates often wants to share their work with an audience, students, or team members on social media and chat channels. Currently, sharing code online requires pasting unformatted text blocks, sending screenshots, or linking to a repository that requires local installation. This friction stops people from interacting with the code.
 
-> As a beginner who understands programming basics but struggles to start complex scripts independently, I want to ask questions and get clear, contextual guidance at any point in my coding process, so that I can build confidence and make progress without feeling overwhelmed or stuck.
+### Independent Learners
 
----
+Many students and junior developers learn best by analyzing existing, functional code and modifying it to see how the output changes. However, downloading another developer's script locally often leads to frustrating environment configuration issues, missing dependencies, or terminal errors. Furthermore, beginners are often hesitant to edit shared workspaces out of fear of breaking the original author's working code.
 
-**Story 2 – The Debugging Student**
+### Group Collaborators
 
-> As a student working on assignments or personal scripts, I want to paste my code and receive a clear explanation of what is wrong and why, so that I can fix my bugs and understand the underlying principle well enough to avoid the same mistake in the future.
-
----
-
-**Story 3 – The Competitive Progress Tracker**
-
-> As a learner who is motivated by friendly competition, I want to see how my skill progress compares to others in the community, so that I stay consistently engaged and feel a sense of achievement as I improve over time.
-
-## Demo
-
-Not Available for now.
+When multiple people or community members improve a script together, tracking the history of those changes usually becomes messy. Traditional code sharing sites treat code as static text, making it impossible to see where a snippet originated, who modified it, or how many spin-off versions were created from the original idea.
 
 ## Getting Started
 
@@ -108,30 +107,6 @@ To compile the static production build manually:
 ```bash
 npm run build
 ```
-
-## Development Roadmap
-
-### Milestone 1: Frontend Foundations & UI/UX
-
-- **Focus:** UI Layout & Base IDE Integration.
-
-- **Tasks:** Build a highly polished, responsive interface utilizing React/Next.js. Embed the Monaco Editor API and configure functional control buttons (Run, Debug, Clear).
-
-### Milestone 2: Backend Architecture & AI Integration
-
-- **Focus:** Core Logic & Persistent Storage.
-
-- **Tasks:** Integrate secure AI model API endpoints on the backend to stream contextual code analysis. Implement user authentication (OAuth / JWT) and spin up a secure relational database to manage secure user profiles, state persistence, and code histories.
-
-### Milestone 3: Gamification & User Acceptance Testing (UAT)
-
-- **Focus:** Optimization & Community Features.
-
-- **Tasks:** Deploy the global leaderboards. Conduct structured user testing cycles with actual target beginners to gather qualitative feedback, crush edge-case bugs, and optimize prompt engineering parameters before final evaluation.
-
-## Deployment
-
-Not Available for now.
 
 ## Issues & Feedback
 
