@@ -18,11 +18,11 @@ export const metadata: Metadata = {
     description: "Code Our Dream",
     icons: {
         icon: [
-            { url: "/icon.png", type: "image/png", sizes: "512x512" },
-            { url: "/icon.svg", type: "image/svg+xml" },
+            { url: "/Cod/icon.svg?v=2", type: "image/svg+xml" },
+            { url: "/Cod/icon.png?v=2", type: "image/png", sizes: "512x512" },
         ],
         apple: [
-            { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+            { url: "/Cod/apple-icon.png?v=2", sizes: "180x180", type: "image/png" },
         ],
     },
 };

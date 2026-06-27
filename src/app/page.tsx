@@ -191,7 +191,7 @@ export default function Home() {
         <main className="c-page-layout rounded-none">
             {/* Toolbar section */}
             <div className="flex flex-row justify-start gap-4 p-4 items-center flex-wrap rounded-none">
-                <Text label="COD" formatting="bold" />
+                <Text label="COD" formatting="bold" className="font-mambo"/>
                 <Text label={`| Time  ${timeString}`} />
 
                 <select
