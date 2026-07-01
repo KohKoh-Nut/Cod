@@ -61,7 +61,7 @@ export default function Auth() {
             // Insert user profile into public users table
             if (signUpData.user) {
                 const { error: usersError } = await supabase
-                    .from("users")
+                    .from("profiles")
                     .insert({
                         id: signUpData.user.id,
                         email: email,
