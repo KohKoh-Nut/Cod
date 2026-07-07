@@ -8,6 +8,7 @@ const NAV_LINKS = [
     { label: "Code", link: "/" },
     { label: "Profile", link: "/profile" },
     { label: "Settings", link: "/settings" },
+    { label: "Friends", link: "/friends"},
 ];
 
 export default function NavBar() {
