@@ -15,8 +15,8 @@ export default function Auth() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-    // Simple helper to validate sign up password rules
     const validatePassword = (): string | null => {
         if (password !== confirmPassword) return "Passwords do not match.";
         if (password.length < 8)
@@ -35,8 +35,8 @@ export default function Auth() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
+        setSuccess("");
 
-        // Handle Sign Up flow
         if (isSignUp) {
             const validationError = validatePassword();
             if (validationError) {
@@ -44,13 +44,11 @@ export default function Auth() {
                 return;
             }
 
-            // Create auth user in Supabase
-            const { data: signUpData, error: signUpError } =
-                await supabase.auth.signUp({
-                    email,
-                    password: password,
-                    options: { data: { name: username } },
-                });
+            const { error: signUpError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { name: username } },
+            });
 
             if (signUpError) {
                 console.error("Error signing up:", signUpError.message);
@@ -58,36 +56,14 @@ export default function Auth() {
                 return;
             }
 
-            // Insert user profile into public users table
-            if (signUpData.user) {
-                const { error: usersError } = await supabase
-                    .from("users")
-                    .insert({
-                        id: signUpData.user.id,
-                        email: email,
-                        username: username,
-                    });
-
-                if (usersError) {
-                    console.error(
-                        "Error creating account:",
-                        usersError.message,
-                    );
-                    setError(usersError.message);
-                    return;
-                }
-            }
-
+            setSuccess("Account created! Check your email to confirm.");
             console.log("Signed up successfully!", { email, username });
-            router.push("/profile");
-        }
 
-        // Handle Sign In flow
-        else {
+        } else {
             const { error: signInError } =
                 await supabase.auth.signInWithPassword({
                     email,
-                    password: password,
+                    password,
                 });
 
             if (signInError) {
@@ -97,7 +73,7 @@ export default function Auth() {
             }
 
             console.log("Signed in successfully!", { email });
-            router.push("/profile");
+            router.push("/");
         }
     };
 
@@ -156,6 +132,10 @@ export default function Auth() {
                     <p className="text-sm text-error font-mono">{error}</p>
                 )}
 
+                {success && (
+                    <p className="text-sm text-success font-mono">{success}</p>
+                )}
+
                 <Button
                     label={isSignUp ? "Sign Up" : "Sign In"}
                     type="submit"
@@ -172,6 +152,7 @@ export default function Auth() {
                 className="mt-4 underline text-fg-muted"
                 onClick={() => {
                     setError("");
+                    setSuccess("");
                     setIsSignUp(!isSignUp);
                 }}
             />
