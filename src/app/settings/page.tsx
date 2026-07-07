@@ -1,11 +1,15 @@
 'use client';
+import ThemeSwiper from '@/components/ThemeSwiper';
+import Text from '@/components/Text';
 
-export default function Settings (){
-
-    return(
-        
-        <div className="min-h-screen min-w-screen bg-slate-900 text-yellow text-8xl items-center justify-center flex flex-row">
-            Settings
-        </div>
-    );
+export default function SettingsPage() {
+  return (
+    <div className="p-6 flex flex-col gap-6">
+      <Text 
+        type="header" 
+        level={2} 
+        label="Settings" />
+      <ThemeSwiper />
+    </div>
+  );
 }

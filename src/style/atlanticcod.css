@@ -1,38 +1,48 @@
-:root {
-    /* THE VOID & DEEP SHADOWS (Surfaces & Underlayers) */
-    --abyssal_bark: #07080b; /* Darkest panel background */
-    --burnt_charcoal: #0b0c10; /* Core layout body background */
-    --canyon_floor: #16171d; /* Editor surface background */
-    --crushed_clay: #1f212a; /* Active line / element background */
-
-    /* THE LIGHT (Text scales) */
-    --dusty_parchment: #f3f4f7; /* High-contrast text / bold tokens */
-    --river_silt: #cdd1dc; /* Standard variables / identifiers */
-
-    /* THE SYNTAX ACCENTS (Polished, vibrant but clean) */
-    --magma_dust: #ff4081; /* Regex / Special keywords (Pink) */
-    --wildfire: #f50057; /* Function calls / Crucial macros */
-
-    --desert_rose: #b388ff; /* Strings / Static literals (Violet) */
-    --dusty_mauve: #7c4dff; /* Type definitions / Interfaces */
-
-    --apricot_dust: #ff9100; /* Numbers / Boolean values (Orange) */
-    --canyon_flash: #ffb74d; /* Numbers alternative / Float values */
-
-    --tumbleweed: #ffd740; /* Attributes / JSON keys (Gold) */
-    --spinifex_gold: #ffea00; /* Search highlights */
-
-    --desert_sage: #69f0ae; /* HTML tags / XML element names (Mint) */
-    --pale_spinifex: #1de9b6; /* Constants / Global variables (Teal) */
-
-    --shale_green: #00e5ff; /* Built-in methods / Framework terms (Cyan) */
-    --river_ooze: #00b0ff; /* URL links / Escape characters */
-
-    --outback_sky: #82b1ff; /* Method calls / Standard declarations (Blue) */
-    --eucalyptus_smoke: #448aff; /* Class names / Inheritance structures */
-
-    /* CHASSIS SCAFFOLDING (UI Borders and Dividers) */
-    --fossil_bone: #4b4e5c; /* High visibility structural borders */
-    --weathered_wood: #2e313d; /* Secondary container grids */
-    --termite_mound: #1f212a; /* Tab group dividers */
+/* atlanticcod.css - light theme */
+:root.light {
+    /* Core Canvas & Layering */
+    --bg: #f5f5f5;
+    --bg_surface: #ffffff;
+    --bg_element: #e8e8ec;
+    --border: #d0d3de;
+    /* Typography */
+    --fg: #1a1b1f;
+    --fg_muted: #5a5f72;
+    --comment: #8a8f9f;
+    /* Brand & Actions */
+    --brand: #7c4dff;
+    --brand_hover: #651fff;
+    --interactive: #1565c0;
+    --interactive_hover: #0d47a1;
+    /* System Status */
+    --success: #2e7d32;
+    --warning: #e65100;
+    --error: #c62828;
+    /* THE VOID & DEEP SHADOWS (inverted for light) */
+    --abyssal_bark: #ffffff;
+    --burnt_charcoal: #f5f5f5;
+    --canyon_floor: #eeeeee;
+    --crushed_clay: #e0e0e0;
+    /* THE LIGHT (text scales, now dark on light) */
+    --dusty_parchment: #1a1b1f;
+    --river_silt: #2e3045;
+    /* Syntax accents */
+    --magma_dust: #c2185b;
+    --wildfire: #ad1457;
+    --desert_rose: #6a1b9a;
+    --dusty_mauve: #4527a0;
+    --apricot_dust: #e65100;
+    --canyon_flash: #ef6c00;
+    --tumbleweed: #f57f17;
+    --spinifex_gold: #f9a825;
+    --desert_sage: #00695c;
+    --pale_spinifex: #00796b;
+    --shale_green: #00838f;
+    --river_ooze: #0277bd;
+    --outback_sky: #1565c0;
+    --eucalyptus_smoke: #1976d2;
+    /* Chassis */
+    --fossil_bone: #bdbdbd;
+    --weathered_wood: #e0e0e0;
+    --termite_mound: #eeeeee;
 }
