@@ -1,21 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { supabase } from "@/utils/supabase-client";
 
+type AuthMode = 'signin' | 'signup' | 'forgot' | 'reset';
+
 export default function Auth() {
     const router = useRouter();
-    const [isSignUp, setIsSignUp] = useState(false);
+    const [mode, setMode] = useState<AuthMode>('signin');
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
+    useEffect(() => {
+        console.log('hash:', window.location.hash);
+        console.log('href:', window.location.href);
+
+        // Method 1: Check hash directly
+        const hash = window.location.hash;
+        if (hash.includes('type=recovery')) {
+            console.log('recovery detected via hash');
+            setMode('reset');
+            window.history.replaceState(null, '', window.location.pathname);
+            return;
+        }
+
+        // Method 2: Listen for Supabase PASSWORD_RECOVERY event
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log('auth event:', event, session);
+            if (event === 'PASSWORD_RECOVERY') {
+                console.log('recovery detected via auth event');
+                setMode('reset');
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+        });
+
+        return () => authListener.subscription.unsubscribe();
+    }, []);
+
+    const clearMessages = () => {
+        setError('');
+        setSuccess('');
+    };
 
     const validatePassword = (): string | null => {
         if (password !== confirmPassword) return "Passwords do not match.";
@@ -32,49 +64,72 @@ export default function Auth() {
         return null;
     };
 
+    const handleSignIn = async () => {
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) { setError(error.message); return; }
+        router.push('/');
+    };
+
+    const handleSignUp = async () => {
+        const validationError = validatePassword();
+        if (validationError) { setError(validationError); return; }
+
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { name: username } },
+        });
+        if (error) { setError(error.message); return; }
+        setSuccess("Account created! Check your email to confirm.");
+    };
+
+    const handleForgotPassword = async () => {
+        if (!email) { setError("Please enter your email address."); return; }
+
+        const isDev = window.location.hostname === 'localhost';
+        const redirectTo = isDev
+            ? 'http://localhost:3000/Cod/login'
+            : 'https://kohkoh-nut.github.io/Cod/login';
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo,
+        });
+        if (error) { setError(error.message); return; }
+        setSuccess("Password reset link sent! Check your email.");
+    };
+
+    const handleResetPassword = async () => {
+        const validationError = validatePassword();
+        if (validationError) { setError(validationError); return; }
+
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) { setError(error.message); return; }
+        setSuccess("Password updated successfully!");
+        setTimeout(() => {
+            setMode('signin');
+            setPassword('');
+            setConfirmPassword('');
+            clearMessages();
+        }, 2000);
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setError("");
-        setSuccess("");
+        clearMessages();
+        if (mode === 'signin') await handleSignIn();
+        else if (mode === 'signup') await handleSignUp();
+        else if (mode === 'forgot') await handleForgotPassword();
+        else if (mode === 'reset') await handleResetPassword();
+    };
 
-        if (isSignUp) {
-            const validationError = validatePassword();
-            if (validationError) {
-                setError(validationError);
-                return;
-            }
-
-            const { error: signUpError } = await supabase.auth.signUp({
-                email,
-                password,
-                options: { data: { name: username } },
-            });
-
-            if (signUpError) {
-                console.error("Error signing up:", signUpError.message);
-                setError(signUpError.message);
-                return;
-            }
-
-            setSuccess("Account created! Check your email to confirm.");
-            console.log("Signed up successfully!", { email, username });
-
-        } else {
-            const { error: signInError } =
-                await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
-
-            if (signInError) {
-                console.error("Error signing in:", signInError.message);
-                setError(signInError.message);
-                return;
-            }
-
-            console.log("Signed in successfully!", { email });
-            router.push("/");
-        }
+    const titles: Record<AuthMode, string> = {
+        signin: 'Sign In',
+        signup: 'Create Account',
+        forgot: 'Forgot Password',
+        reset: 'Reset Password',
     };
 
     return (
@@ -84,19 +139,21 @@ export default function Auth() {
                 className="w-full max-w-md p-6 bg-bg-surface border border-border flex flex-col space-y-4 rounded-none"
             >
                 <h2 className="text-2xl font-bold text-fg text-center mb-2 font-mono">
-                    {isSignUp ? "Create Account" : "Sign In"}
+                    {titles[mode]}
                 </h2>
 
-                <Input
-                    label="Email Address"
-                    type="email"
-                    placeholder="Email Address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
+                {mode !== 'reset' && (
+                    <Input
+                        label="Email Address"
+                        type="email"
+                        placeholder="Email Address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                )}
 
-                {isSignUp && (
+                {mode === 'signup' && (
                     <Input
                         label="Username"
                         type="text"
@@ -107,16 +164,18 @@ export default function Auth() {
                     />
                 )}
 
-                <Input
-                    label="Password"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
+                {(mode === 'signin' || mode === 'signup' || mode === 'reset') && (
+                    <Input
+                        label={mode === 'reset' ? "New Password" : "Password"}
+                        type="password"
+                        placeholder={mode === 'reset' ? "New Password" : "Password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                )}
 
-                {isSignUp && (
+                {(mode === 'signup' || mode === 'reset') && (
                     <Input
                         label="Confirm Password"
                         type="password"
@@ -131,13 +190,17 @@ export default function Auth() {
                 {error && (
                     <p className="text-sm text-error font-mono">{error}</p>
                 )}
-
                 {success && (
                     <p className="text-sm text-success font-mono">{success}</p>
                 )}
 
                 <Button
-                    label={isSignUp ? "Sign Up" : "Sign In"}
+                    label={
+                        mode === 'signin' ? 'Sign In' :
+                        mode === 'signup' ? 'Sign Up' :
+                        mode === 'forgot' ? 'Send Reset Link' :
+                        'Reset Password'
+                    }
                     type="submit"
                     size="md"
                     scale="bounce"
@@ -145,17 +208,46 @@ export default function Auth() {
                 />
             </form>
 
-            <Button
-                label={isSignUp ? "Switch to Sign In" : "Switch to Sign Up"}
-                type="button"
-                size="sm"
-                className="mt-4 underline text-fg-muted"
-                onClick={() => {
-                    setError("");
-                    setSuccess("");
-                    setIsSignUp(!isSignUp);
-                }}
-            />
+            <div className="flex flex-col items-center gap-2 mt-4">
+                {mode === 'signin' && (
+                    <>
+                        <Button
+                            label="Switch to Sign Up"
+                            type="button"
+                            size="sm"
+                            className="underline text-fg-muted"
+                            onClick={() => { clearMessages(); setMode('signup'); }}
+                        />
+                        <Button
+                            label="Forgot password?"
+                            type="button"
+                            size="sm"
+                            className="underline text-fg-muted"
+                            onClick={() => { clearMessages(); setMode('forgot'); }}
+                        />
+                    </>
+                )}
+
+                {mode === 'signup' && (
+                    <Button
+                        label="Switch to Sign In"
+                        type="button"
+                        size="sm"
+                        className="underline text-fg-muted"
+                        onClick={() => { clearMessages(); setMode('signin'); }}
+                    />
+                )}
+
+                {(mode === 'forgot' || mode === 'reset') && (
+                    <Button
+                        label="Back to Sign In"
+                        type="button"
+                        size="sm"
+                        className="underline text-fg-muted"
+                        onClick={() => { clearMessages(); setMode('signin'); }}
+                    />
+                )}
+            </div>
         </div>
     );
 }
