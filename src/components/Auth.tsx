@@ -19,23 +19,16 @@ export default function Auth() {
     const [success, setSuccess] = useState("");
 
     useEffect(() => {
-        console.log('hash:', window.location.hash);
-        console.log('href:', window.location.href);
-
-        // Method 1: Check hash directly
         const hash = window.location.hash;
-        if (hash.includes('type=recovery')) {
-            console.log('recovery detected via hash');
-            setMode('reset');
-            window.history.replaceState(null, '', window.location.pathname);
-            return;
-        }
 
-        // Method 2: Listen for Supabase PASSWORD_RECOVERY event
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log('auth event:', event, session);
+            if (hash.includes('type=recovery')) {
+                setMode('reset');
+                window.history.replaceState(null, '', window.location.pathname);
+                return;
+            }
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
             if (event === 'PASSWORD_RECOVERY') {
-                console.log('recovery detected via auth event');
                 setMode('reset');
                 window.history.replaceState(null, '', window.location.pathname);
             }
@@ -50,63 +43,80 @@ export default function Auth() {
     };
 
     const validatePassword = (): string | null => {
-        if (password !== confirmPassword) return "Passwords do not match.";
-        if (password.length < 8)
+
+        if (password !== confirmPassword) 
+            return "Passwords do not match.";
+        if (password.length < 8) 
             return "Password must be at least 8 characters long.";
-        if (!/[0-9]/.test(password))
+        if (!/[0-9]/.test(password)) 
             return "Password must contain at least one number.";
-        if (!/[A-Z]/.test(password))
+        if (!/[A-Z]/.test(password)) 
             return "Password must contain at least one uppercase letter.";
-        if (!/[a-z]/.test(password))
+        if (!/[a-z]/.test(password)) 
             return "Password must contain at least one lowercase letter.";
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) 
             return "Password must contain at least one special character.";
         return null;
     };
 
     const handleSignIn = async () => {
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-        if (error) { setError(error.message); return; }
-        router.push('/');
-    };
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) { setError(error.message); 
+                return; 
+            }
+            router.push('/');
+        };
 
     const handleSignUp = async () => {
         const validationError = validatePassword();
-        if (validationError) { setError(validationError); return; }
 
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { data: { name: username } },
-        });
-        if (error) { setError(error.message); return; }
-        setSuccess("Account created! Check your email to confirm.");
+            if (validationError) { setError(validationError); 
+                return; 
+            }
+
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { name: username } },
+            });
+
+            if (error) { setError(error.message); 
+                return; 
+            }
+            setSuccess("Account created! Check your email to confirm.");
     };
 
     const handleForgotPassword = async () => {
-        if (!email) { setError("Please enter your email address."); return; }
+
+        if (!email) { setError("Please enter your email address.");
+            return; 
+        }
 
         const isDev = window.location.hostname === 'localhost';
         const redirectTo = isDev
             ? 'http://localhost:3000/Cod/login'
             : 'https://kohkoh-nut.github.io/Cod/login';
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo,
-        });
-        if (error) { setError(error.message); return; }
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+
+        if (error) { setError(error.message); 
+            return; 
+        }
         setSuccess("Password reset link sent! Check your email.");
     };
 
     const handleResetPassword = async () => {
         const validationError = validatePassword();
-        if (validationError) { setError(validationError); return; }
+        
+        if (validationError) { setError(validationError); 
+            return; 
+        }
 
         const { error } = await supabase.auth.updateUser({ password });
-        if (error) { setError(error.message); return; }
+        if (error) { setError(error.message); 
+            return; 
+        }
         setSuccess("Password updated successfully!");
         setTimeout(() => {
             setMode('signin');
@@ -187,12 +197,8 @@ export default function Auth() {
                     />
                 )}
 
-                {error && (
-                    <p className="text-sm text-error font-mono">{error}</p>
-                )}
-                {success && (
-                    <p className="text-sm text-success font-mono">{success}</p>
-                )}
+                {error && <p className="text-sm text-error font-mono">{error}</p>}
+                {success && <p className="text-sm text-success font-mono">{success}</p>}
 
                 <Button
                     label={

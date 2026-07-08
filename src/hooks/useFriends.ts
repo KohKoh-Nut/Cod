@@ -92,14 +92,18 @@ export function useFriends(currentUserId: string) {
   }, [currentUserId]);
 
   const searchUsers = async (query: string) => {
-    if (!query.trim()) { setSearchResults([]); return; }
+    if (!query.trim()) { setSearchResults([]); 
+      return; 
+    }
     setIsLoading(true);
+
     const { data, error } = await supabase
       .from('profiles')
       .select('id, username, email')
       .ilike('username', `%${query}%`)
       .neq('id', currentUserId)
       .limit(10);
+
     if (error) console.error('Error searching users:', error.message);
     setSearchResults((data as UserProfile[]) ?? []);
     setIsLoading(false);
@@ -124,6 +128,7 @@ export function useFriends(currentUserId: string) {
       .from('friend_requests')
       .update({ status: 'accepted' })
       .eq('id', requestId);
+
     if (error) {
       console.error('Error accepting request:', error.message);
       setError(error.message);
@@ -139,6 +144,7 @@ export function useFriends(currentUserId: string) {
       .from('friend_requests')
       .update({ status: 'declined' })
       .eq('id', requestId);
+      
     if (error) {
       console.error('Error declining request:', error.message);
       setError(error.message);
@@ -153,6 +159,7 @@ export function useFriends(currentUserId: string) {
       .from('friends')
       .delete()
       .or(`and(user_id.eq.${currentUserId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${currentUserId})`);
+    
     if (error) {
       console.error('Error removing friend:', error.message);
       setError(error.message);
