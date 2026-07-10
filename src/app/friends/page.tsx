@@ -32,7 +32,10 @@ export default function FriendsPage() {
 
   if (!currentUser) return (
     <main className="c-page-layout flex items-center justify-center">
-      <Text label="Loading..." type="description" />
+      <Text 
+          label="Loading..." 
+          type="description" 
+     />
     </main>
   );
 
@@ -40,6 +43,7 @@ export default function FriendsPage() {
 }
 
 function FriendsContent({ currentUser }: { currentUser: UserProfile }) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'list' | 'graph'>('list');
 
@@ -74,90 +78,177 @@ function FriendsContent({ currentUser }: { currentUser: UserProfile }) {
     <main className="c-page-layout overflow-auto">
       <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto w-full">
 
-        <Text type="header" level={2} label="Friends" />
+        <Text 
+            type="header" 
+            level={2} 
+            label="Friends" 
+       />
 
         {/* Search */}
         <div className="flex flex-col gap-2">
-          <Text type="description" label="Search by username" />
+          <Text 
+              type="description" 
+              label="Search by username" 
+         />
           <Input
-            label="Search"
-            type="text"
-            placeholder="Enter username..."
-            value={searchQuery}
-            onChange={handleSearch}
+              label="Search"
+              type="text"
+              placeholder="Enter username..."
+              value={searchQuery}
+              onChange={handleSearch}
           />
 
           {searchResults.length > 0 && (
             <div className="flex flex-col gap-2 border border-border bg-bg-surface p-3">
               {searchResults.map((user) => (
                 <div key={user.id} className="flex items-center justify-between py-1">
-                  <Text label={user.username} type="description" />
-                  {isAlreadyFriend(user.id) ? (
-                    <Text label="Already friends" type="description" color="muted" />
-                  ) : isRequestSent(user.id) ? (
-                    <Text label="Request sent" type="description" color="muted" />
-                  ) : (
-                    <Button label="Add" size="sm" onClick={() => sendRequest(user.id)} />
-                  )}
+                  <Text 
+                      label={user.username} 
+                      type="description" 
+                 />
+                  <div className="flex gap-2">
+                    <Button
+                        label="View"
+                        size="sm"
+                        onClick={() => router.push(`/profile/view?username=${user.username}`)}
+                    />
+                    {isAlreadyFriend(user.id) ? (
+                      <Text 
+                          label="Already friends" 
+                          type="description" 
+                          color="muted" 
+                     />
+                    ) : isRequestSent(user.id) ? (
+                      <Text 
+                          label="Request sent" 
+                          type="description" 
+                          color="muted" 
+                     />
+                    ) : (
+                      <Button 
+                          label="Add" 
+                          size="sm" 
+                          onClick={() => sendRequest(user.id)} 
+                     />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
-          {isLoading && <Text label="Searching..." type="description" color="muted" />}
+          {isLoading && 
+            <Text 
+                label="Searching..." 
+                type="description" 
+                color="muted" 
+           />
+          }
+
           {searchQuery && !isLoading && searchResults.length === 0 && (
-            <Text label="No users found" type="description" color="muted" />
+            <Text 
+                label="No users found" 
+                type="description" 
+                color="muted" 
+           />
           )}
         </div>
 
         {/* Pending requests */}
         {pendingRequests.length > 0 && (
           <div className="flex flex-col gap-2">
-            <Text type="header" level={3} label="Pending Requests" />
+            <Text 
+                type="header" 
+                level={3} 
+                label="Pending Requests" 
+           />
             {pendingRequests.map((req) => (
               <div key={req.id} className="flex items-center justify-between border border-border bg-bg-surface p-3">
-                <Text label={req.sender.username} type="description" />
+                <Text 
+                    label={req.sender.username} 
+                    type="description" 
+               />
                 <div className="flex gap-2">
-                  <Button label="Accept" size="sm" onClick={() => acceptRequest(req.id)} />
-                  <Button label="Decline" size="sm" onClick={() => declineRequest(req.id)} />
+                  <Button 
+                      label="Accept" 
+                      size="sm" 
+                      onClick={() => acceptRequest(req.id)} 
+                 />
+                  <Button 
+                      label="Decline" 
+                      size="sm" 
+                      onClick={() => declineRequest(req.id)} 
+                 />
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {error && <Text label={error} type="description" color="muted" />}
+        {error && 
+          <Text 
+              label={error} 
+              type="description" 
+              color="muted" 
+         />
+        }
 
         {/* Tab toggle */}
         <div className="flex gap-2">
           <Button
-            label="List"
-            size="sm"
-            onClick={() => setActiveTab('list')}
-            className={activeTab === 'list' ? 'border-brand' : ''}
+              label="List"
+              size="sm"
+              onClick={() => setActiveTab('list')}
+              className={activeTab === 'list' ? 'border-brand' : ''}
           />
           <Button
-            label="Graph"
-            size="sm"
-            onClick={() => setActiveTab('graph')}
-            className={activeTab === 'graph' ? 'border-brand' : ''}
+              label="Graph"
+              size="sm"
+              onClick={() => setActiveTab('graph')}
+              className={activeTab === 'graph' ? 'border-brand' : ''}
           />
         </div>
 
         {/* Friends list */}
         {activeTab === 'list' && (
           <div className="flex flex-col gap-2">
-            <Text type="header" level={3} label={`Friends (${friends.length})`} />
+            <Text 
+                type="header" 
+                level={3} 
+                label={`Friends (${friends.length})`} 
+           />
             {friends.length === 0 ? (
-              <Text label="No friends yet — search for someone above." type="description" color="muted" />
+              <Text 
+                  label="No friends yet — search for someone above." 
+                  type="description" 
+                  color="muted" 
+             />
             ) : (
               friends.map((f) => (
                 <div key={f.id} className="flex items-center justify-between border border-border bg-bg-surface p-3">
                   <div className="flex flex-col gap-0.5">
-                    <Text label={f.friend.username} type="description" />
-                    <Text label={f.friend.email} type="description" color="muted" />
+                    <Text 
+                        label={f.friend.username} 
+                        type="description" 
+                   />
+                    <Text 
+                        label={f.friend.email} 
+                        type="description" 
+                        color="muted" 
+                   />
                   </div>
-                  <Button label="Remove" size="sm" onClick={() => removeFriend(f.friend_id)} />
+                  <div className="flex gap-2">
+                    <Button
+                        label="View"
+                        size="sm"
+                        onClick={() => router.push(`/profile/view?username=${f.friend.username}`)}
+                    />
+                    <Button 
+                        label="Remove" 
+                        size="sm" 
+                        onClick={() => removeFriend(f.friend_id)} 
+                   />
+                  </div>
                 </div>
               ))
             )}
@@ -167,11 +258,19 @@ function FriendsContent({ currentUser }: { currentUser: UserProfile }) {
         {/* Graph view */}
         {activeTab === 'graph' && (
           <div className="flex flex-col gap-2">
-            <Text type="header" level={3} label="Connection Graph" />
+            <Text 
+                type="header" 
+                level={3} 
+                label="Connection Graph" 
+           />
             <div className="border border-border bg-bg-surface w-full" style={{ height: '500px' }}>
               {friends.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <Text label="Add friends to see your connection graph." type="description" color="muted" />
+                  <Text 
+                      label="Add friends to see your connection graph." 
+                      type="description" 
+                      color="muted" 
+                 />
                 </div>
               ) : (
                 <FriendGraph data={graphData} />

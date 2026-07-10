@@ -44,6 +44,7 @@ export default function Home() {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
     const [generatedShareUrl, setGeneratedShareUrl] = useState("");
+    const [generatedShareId, setGeneratedShareId] = useState("");
 
     const { copy, copied } = useCopyCode();
     const { inputRef, triggerUpload, handleFileChange } = useUploadCode(
@@ -118,13 +119,25 @@ export default function Home() {
 
     // Dynamic sharing trigger function linked to our customized hook structure
     const onShareButtonClick = async () => {
-        const url = await handleShare();
-        if (url) {
-            setGeneratedShareUrl(url);
+        const result = await handleShare();
+        if (result && result !== "AUTH_REQUIRED") {
+            setGeneratedShareUrl(result.url);
+            setGeneratedShareId(result.id);
+            setIsShareModalOpen(true);
+
+        } else if (result === "AUTH_REQUIRED"){
+            setGeneratedShareUrl("AUTH_REQUIRED");
             setIsShareModalOpen(true);
         }
     };
 
+    <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        shareUrl={generatedShareUrl}
+        shareId={generatedShareId}
+    />
+    
     const handleFork = () => {
         window.location.hash = "";
         setIsReadOnly(false);
@@ -269,6 +282,7 @@ export default function Home() {
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
                 shareUrl={generatedShareUrl}
+                shareId={generatedShareId}
             />
         </main>
     );
