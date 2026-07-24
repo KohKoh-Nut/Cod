@@ -1,35 +1,39 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase-client';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/utils/supabase-client";
 
+// redirect target after email confirmation / oauth: checks for a valid
+// session and routes home or back to login
 export default function AuthCallback() {
-  const router = useRouter();
+    const router = useRouter();
 
-  useEffect(() => {
-    const handleCallback = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Auth callback error:', error.message);
-        router.push('/login');
-        return;
-      }
+    useEffect(() => {
+        const handleCallback = async () => {
+            const { data, error } = await supabase.auth.getSession();
 
-      if (data.session) {
-        router.push('/');
-      } else {
-        router.push('/login');
-      }
-    };
+            if (error) {
+                console.error("Auth callback error:", error.message);
+                router.push("/login");
+                return;
+            }
 
-    handleCallback();
-  }, [router]);
+            if (data.session) {
+                router.push("/");
+            } else {
+                router.push("/login");
+            }
+        };
 
-  return (
-    <main className="c-page-layout flex items-center justify-center">
-      <p className="text-fg font-mono text-sm">Confirming your account...</p>
-    </main>
-  );
+        handleCallback();
+    }, [router]);
+
+    return (
+        <main className="c-page-layout flex items-center justify-center">
+            <p className="text-fg font-mono text-sm">
+                Confirming your account...
+            </p>
+        </main>
+    );
 }

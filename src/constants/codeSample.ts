@@ -1,6 +1,4 @@
-// Default starter code shown in the editor when switching languages.
-// Kept simple, just enough to verify the language runs correctly.
-
+// starter "hello world" style snippet shown when a language is selected
 export const CODE_SAMPLES: Record<string, string> = {
     python: [
         "def greet(name: str) -> str:",
@@ -126,12 +124,13 @@ export const CODE_SAMPLES: Record<string, string> = {
     kotlin: ["fun main() {", '    println("Hello, World!")', "}"].join("\n"),
 };
 
-// Fallback if a language somehow isn't in the map
+// used when a language has no sample defined above
 export const DEFAULT_CODE = "// No sample available for this language\n";
 
+// gets the starter code for a language, falling back to the default message
 export function getDefaultCode(language: string): string {
     return CODE_SAMPLES[language] ?? DEFAULT_CODE;
 }
 
-// Keep this for any existing imports that reference INITIAL_PYTHON_CODE
+// python is the editor's default language on first load
 export const INITIAL_PYTHON_CODE = CODE_SAMPLES.python;
