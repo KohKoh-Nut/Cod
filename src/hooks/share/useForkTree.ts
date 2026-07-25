@@ -16,7 +16,7 @@ export interface ForkTreeNode {
     children: ForkTreeNode[];
 }
 
-interface TreeRow {
+export interface TreeRow {
     id: string;
     parent_share_id: string | null;
     user_id: string | null;
@@ -29,7 +29,7 @@ interface TreeRow {
 // works out which rows stay in the tree: a row is kept if it's visible
 // itself, or if any of its descendants are kept (so the branch leading
 // to a visible descendant doesn't just disappear)
-function computeKeptIds(rows: TreeRow[], childrenOf: Map<string, TreeRow[]>) {
+export function computeKeptIds(rows: TreeRow[], childrenOf: Map<string, TreeRow[]>) {
     const kept = new Set<string>();
 
     // process newest first so every child is already resolved by the
@@ -49,7 +49,7 @@ function computeKeptIds(rows: TreeRow[], childrenOf: Map<string, TreeRow[]>) {
 
 // turns the flat row list into a nested tree starting at rootId,
 // dropping any rows that computeKeptIds decided to exclude
-function buildTree(
+export function buildTree(
     rootId: string,
     byId: Map<string, TreeRow>,
     childrenOf: Map<string, TreeRow[]>,

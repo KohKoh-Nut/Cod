@@ -63,6 +63,7 @@ interface ButtonProps
     link?: string;
     className?: string;
     aria?: string;
+    disabled?: boolean;
     onClick?: () => void;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
@@ -81,11 +82,13 @@ export default function Button({
     size,
     scale,
     type = "button",
+    disabled = false,
     ...props
 }: ButtonProps) {
     const combinedClasses = twMerge(
         buttonLayout({ size, scale }),
         buttonTheme({ border, bg, text }),
+        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
         className,
     );
 
@@ -93,8 +96,9 @@ export default function Button({
     if (link) {
         return (
             <Link
-                href={link}
+                href={disabled ? "#" : link}
                 aria-label={aria}
+                aria-disabled={disabled}
                 className={combinedClasses}
                 {...props}
             >
@@ -108,6 +112,7 @@ export default function Button({
         <button
             type={type}
             aria-label={aria}
+            disabled={disabled}
             className={combinedClasses}
             {...props}
         >

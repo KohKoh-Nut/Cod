@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 import { getDefaultCode } from "@/constants/codeSample";
+import { countInputCalls } from "@/utils/inputDetection";
 
 // languages the editor lets the user pick from
 export const SUPPORTED_LANGUAGES = [
@@ -20,27 +21,6 @@ export const SUPPORTED_LANGUAGES = [
     "lua",
     "haskell",
 ];
-
-// shape of the pyodide runtime object once it's loaded
-interface Pyodide {
-    globals: { set: (key: string, value: unknown) => void };
-    toPy: (value: unknown) => unknown;
-    runPythonAsync: (
-        code: string,
-        options?: { globals?: unknown },
-    ) => Promise<unknown>;
-    pyimport: (mod: string) => unknown;
-}
-
-// pyodide attaches itself to window once loaded, and we attach our own
-// input bridge for python's input() calls
-declare global {
-    interface Window {
-        pyodide?: Pyodide;
-        loadPyodide?: (opts: { indexURL: string }) => Promise<Pyodide>;
-        __jsInput__?: (prompt: string) => Promise<string>;
-    }
-}
 
 // one line in the terminal-style output panel
 export type TerminalLine =
@@ -135,54 +115,17 @@ async function fallbackCompiler(lang: string, proxy: string): Promise<string> {
     return match.name;
 }
 
-// pyodide is loaded once and shared across the whole app, since it's a
-// large asset and every run/switch shouldn't refetch it
-let pyodideInstance: Pyodide | null = null;
-let pyodideLoaderPromise: Promise<Pyodide> | null = null;
+// python/js run in a dedicated worker instead of the main thread, so a
+// user's infinite loop pegs the worker's thread instead of freezing the
+// whole page. If a run doesn't finish within this window we assume it's
+// stuck and terminate the worker to reclaim its memory.
+const EXECUTION_TIMEOUT_MS = 15000;
 
-async function loadPyodideRuntime(): Promise<Pyodide> {
-    if (pyodideInstance) return pyodideInstance;
-    if (pyodideLoaderPromise) return pyodideLoaderPromise;
-
-    pyodideLoaderPromise = (async () => {
-        if (!window.loadPyodide) {
-            // wait for the pyodide script tag to finish loading, reusing
-            // one already on the page if some other code added it first
-            await new Promise<void>((resolve, reject) => {
-                const existing = document.querySelector(
-                    'script[src*="pyodide.js"]',
-                ) as HTMLScriptElement | null;
-
-                if (existing) {
-                    existing.addEventListener("load", () => resolve());
-                    existing.addEventListener("error", () =>
-                        reject(new Error("Pyodide script failed to load")),
-                    );
-                    return;
-                }
-
-                const tag = document.createElement("script");
-                tag.src =
-                    "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js";
-                tag.onload = () => resolve();
-                tag.onerror = () =>
-                    reject(new Error("Pyodide script failed to load"));
-                document.head.appendChild(tag);
-            });
-        }
-
-        if (!window.loadPyodide)
-            throw new Error("loadPyodide not found after script load");
-
-        pyodideInstance = await window.loadPyodide({
-            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
-        });
-        window.pyodide = pyodideInstance;
-        return pyodideInstance;
-    })();
-
-    return pyodideLoaderPromise;
-}
+type WorkerOutMessage =
+    | { type: "pyodide-ready" }
+    | { type: "input-request"; id: number; prompt: string }
+    | { type: "result"; output: string }
+    | { type: "error"; message: string };
 
 // drives the code editor: current code/language, terminal output lines,
 // running state, and the actual run/input logic for every language
@@ -196,6 +139,19 @@ export function useCodeExecution(initialCode: string) {
 
     // queue of resolvers waiting on the next line of user input
     const inputQueue = useRef<Array<(value: string) => void>>([]);
+
+    // the worker running python/js, created lazily and replaced whenever
+    // it has to be terminated (e.g. after a timeout)
+    const workerRef = useRef<Worker | null>(null);
+
+    const getWorker = useCallback((): Worker => {
+        if (workerRef.current) return workerRef.current;
+        const worker = new Worker(
+            new URL("../../workers/codeRunner.worker.ts", import.meta.url),
+        );
+        workerRef.current = worker;
+        return worker;
+    }, []);
 
     // changing language also resets the editor to that language's sample code
     const switchLanguage = (lang: string) => {
@@ -224,147 +180,93 @@ export function useCodeExecution(initialCode: string) {
         });
     }, []);
 
-    // start loading pyodide as soon as the hook mounts, so it's hopefully
-    // ready by the time the user first runs python code
+    // start warming up pyodide in the worker as soon as the hook mounts,
+    // so it's hopefully ready by the time the user first runs python code
     useEffect(() => {
-        loadPyodideRuntime()
-            .then(() => setPyodideReady(true))
-            .catch(() => {});
+        const worker = getWorker();
+
+        const onMessage = (event: MessageEvent<WorkerOutMessage>) => {
+            if (event.data.type === "pyodide-ready") setPyodideReady(true);
+        };
+        worker.addEventListener("message", onMessage);
+        worker.postMessage({ type: "preload" });
+
+        return () => {
+            worker.removeEventListener("message", onMessage);
+            worker.terminate();
+            workerRef.current = null;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // runs python code inside pyodide, redirecting stdout/stderr into a
-    // string buffer and wiring python's input() to our own input queue
-    async function runPython(src: string): Promise<string> {
-        const py = await loadPyodideRuntime();
-        window.__jsInput__ = requestInput;
+    // runs python or javascript inside the worker, wiring input prompts
+    // back to the terminal and enforcing a hard timeout so a runaway
+    // loop can't hang the tab
+    const runInWorker = useCallback(
+        (lang: "python" | "javascript", src: string): Promise<string> => {
+            const worker = getWorker();
 
-        const result = await py.runPythonAsync(`
-import sys, io, builtins, ast, traceback, js
+            return new Promise<string>((resolve, reject) => {
+                let settled = false;
 
-_buf = io.StringIO()
-sys.stdout = _buf
-sys.stderr = _buf
+                const timeoutId = setTimeout(() => {
+                    if (settled) return;
+                    settled = true;
+                    cleanup();
+                    // the worker may still be stuck in the runaway loop --
+                    // terminate it and let getWorker() spin up a fresh one
+                    // (with pyodide reloaded) on the next run
+                    worker.terminate();
+                    workerRef.current = null;
+                    setPyodideReady(false);
+                    reject(
+                        new Error(
+                            "Execution timed out after 15s (possible infinite loop) — process terminated",
+                        ),
+                    );
+                }, EXECUTION_TIMEOUT_MS);
 
-async def _input(prompt=""):
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
-    val = await js.globalThis.__jsInput__(str(prompt))
-    sys.stdout = _buf
-    sys.stderr = _buf
-    return str(val)
+                const onMessage = (event: MessageEvent<WorkerOutMessage>) => {
+                    const msg = event.data;
 
-builtins.input = _input
+                    if (msg.type === "input-request") {
+                        requestInput(msg.prompt).then((value) => {
+                            worker.postMessage({
+                                type: "input-response",
+                                id: msg.id,
+                                value,
+                            });
+                        });
+                        return;
+                    }
 
-_src = ${JSON.stringify(src)}
+                    if (msg.type === "result") {
+                        if (settled) return;
+                        settled = true;
+                        cleanup();
+                        resolve(msg.output);
+                        return;
+                    }
 
-async def _run():
-    ns = {"input": _input, "__name__": "__main__"}
-    try:
-        exec(compile(ast.parse(_src), "<code>", "exec"), ns)
-    except SystemExit:
-        pass
-    except Exception:
-        print(traceback.format_exc(), end="")
+                    if (msg.type === "error") {
+                        if (settled) return;
+                        settled = true;
+                        cleanup();
+                        reject(new Error(msg.message));
+                    }
+                };
 
-await _run()
+                const cleanup = () => {
+                    clearTimeout(timeoutId);
+                    worker.removeEventListener("message", onMessage);
+                };
 
-sys.stdout = sys.__stdout__
-sys.stderr = sys.__stderr__
-_buf.getvalue()
-`);
-
-        return (result as string) ?? "";
-    }
-
-    // runs javascript directly in the browser with a fake console object,
-    // so log/error/warn output gets captured instead of going to devtools
-    function runJavaScript(src: string): string {
-        const output: string[] = [];
-        const format = (...args: unknown[]) => args.map(String).join(" ");
-
-        const customConsole = {
-            log: (...args: unknown[]) => output.push(format(...args)),
-            error: (...args: unknown[]) =>
-                output.push("Error: " + format(...args)),
-            warn: (...args: unknown[]) =>
-                output.push("Warn: " + format(...args)),
-            info: (...args: unknown[]) => output.push(format(...args)),
-        };
-
-        try {
-            new Function("console", src)(customConsole);
-        } catch (e) {
-            output.push(
-                `Runtime Error: ${e instanceof Error ? e.message : String(e)}`,
-            );
-        }
-
-        return output.join("\n");
-    }
-
-    // Wandbox runs compiled/interpreted languages non-interactively, so we
-    // can't prompt for input while the program runs -- instead this scans
-    // the source for input-reading calls and guesses how many values to
-    // collect from the user upfront, per language's typical input syntax
-    function countInputCalls(src: string, lang: string): number {
-        // strip comments out of the user's code first so commented-out
-        // input calls don't get counted
-        const stripped = src
-            .replace(/\/\/[^\n]*/g, "")
-            .replace(/\/\*[\s\S]*?\*\//g, "");
-
-        if (lang === "cpp" || lang === "c++") {
-            let count = 0;
-            for (const line of stripped.split("\n")) {
-                const trimmed = line.trim();
-                if (/\bgetline\s*\(/.test(trimmed)) {
-                    count += (trimmed.match(/\bgetline\s*\(/g) ?? []).length;
-                } else if (/\bcin\b/.test(trimmed)) {
-                    // each >> after cin pulls in one more value
-                    count += (trimmed.match(/>>/g) ?? []).length;
-                }
-            }
-            return count;
-        }
-
-        if (lang === "c") {
-            return (stripped.match(/%[diouxXeEfgGcs]/g) ?? []).length;
-        }
-        if (lang === "java") {
-            return (
-                stripped.match(
-                    /\.(nextLine|nextInt|nextDouble|nextFloat|nextLong|next)\s*\(/g,
-                ) ?? []
-            ).length;
-        }
-        if (lang === "rust") {
-            return (stripped.match(/\.read_line\s*\(/g) ?? []).length;
-        }
-        if (lang === "python") {
-            return (stripped.match(/\binput\s*\(/g) ?? []).length;
-        }
-
-        return (stripped.match(/\bprompt\s*\(/g) ?? []).length;
-    }
-
-    // asks the user for however many inputs the program appears to need,
-    // then joins them into one stdin blob for Wandbox
-    async function gatherStdin(src: string, lang: string): Promise<string> {
-        const count = countInputCalls(src, lang);
-        if (count === 0) return "";
-
-        pushLine({
-            type: "info",
-            text: `program needs ${count} input${count > 1 ? "s" : ""} — enter them in order:`,
-        });
-
-        const values: string[] = [];
-        for (let i = 0; i < count; i++) {
-            const val = await requestInput(`[${i + 1}/${count}]`);
-            values.push(val);
-        }
-        return values.join("\n");
-    }
+                worker.addEventListener("message", onMessage);
+                worker.postMessage({ type: "run", lang, code: src });
+            });
+        },
+        [getWorker, requestInput],
+    );
 
     // sends the code to the Wandbox proxy and returns its raw response
     async function callWandbox(
@@ -396,6 +298,25 @@ _buf.getvalue()
             program_error?: string;
             error?: string;
         };
+    }
+
+    // asks the user for however many inputs the program appears to need,
+    // then joins them into one stdin blob for Wandbox
+    async function gatherStdin(src: string, lang: string): Promise<string> {
+        const count = countInputCalls(src, lang);
+        if (count === 0) return "";
+
+        pushLine({
+            type: "info",
+            text: `program needs ${count} input${count > 1 ? "s" : ""} — enter them in order:`,
+        });
+
+        const values: string[] = [];
+        for (let i = 0; i < count; i++) {
+            const val = await requestInput(`[${i + 1}/${count}]`);
+            values.push(val);
+        }
+        return values.join("\n");
     }
 
     // runs any non-python, non-javascript language through Wandbox,
@@ -449,6 +370,10 @@ _buf.getvalue()
     // clears the terminal and routes to the right runner for the
     // current language, then reports the result or error as a new line
     async function handleRunCode() {
+        // ignore spam-clicks / re-triggers while a run is already in
+        // flight, in addition to the run button being disabled in the UI
+        if (isLoading) return;
+
         setLines([]);
         inputQueue.current = [];
         setWaitingForInput(false);
@@ -458,10 +383,8 @@ _buf.getvalue()
         try {
             let output = "";
 
-            if (language === "python") {
-                output = await runPython(code);
-            } else if (language === "javascript") {
-                output = runJavaScript(code);
+            if (language === "python" || language === "javascript") {
+                output = await runInWorker(language, code);
             } else {
                 output = await runViaWandbox(code, language);
             }

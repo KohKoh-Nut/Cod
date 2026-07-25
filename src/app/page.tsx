@@ -130,7 +130,11 @@ export default function Home() {
             ? { label: "fork", onClick: handleFork }
             : { label: "share", onClick: () => setIsShareModalOpen(true) },
         { label: "history", onClick: () => setIsHistoryModalOpen(true) },
-        { label: isLoading ? "running..." : "run", onClick: handleRunCode },
+        {
+            label: isLoading ? "running..." : "run",
+            onClick: handleRunCode,
+            disabled: isLoading,
+        },
     ];
 
     // still restoring from a share link or fork draft
