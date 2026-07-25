@@ -1,26 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { useTimer } from "@/hooks/useTimer";
+import { useTimer } from "@/hooks/ui/useTimer";
 import {
     useCodeExecution,
     SUPPORTED_LANGUAGES,
-} from "@/hooks/useCodeExecution";
-import { useShareCode, ShareHistoryEntry } from "@/hooks/useShareCode";
-import { useCopyCode } from "@/hooks/useCopyCode";
-import { useUploadCode } from "@/hooks/useUploadCode";
-import Text from "@/components/Text";
-import CodeOutput from "@/components/Code/CodeOutput";
-import CodeEditor from "@/components/Code/CodeEditor";
-import ButtonBar from "@/modules/ButtonBar";
-import ShareModal from "@/modules/SharePanel";
-import SavePanel from "@/modules/SavePanel";
-import { supabase } from "@/utils/supabase-client";
+} from "@/hooks/editor/useCodeExecution";
+import { useShareCode } from "@/hooks/share/useShareCode";
+import { useCopyCode } from "@/hooks/editor/useCopyCode";
+import { useUploadCode } from "@/hooks/editor/useUploadCode";
+import { useWorkspaceSync } from "@/hooks/editor/useWorkspaceSync";
+import { useDialog } from "@/hooks/ui/useDialog";
+import { ShareVisibility } from "@/types/share";
+import { ShareResult } from "@/hooks/share/useShareCode";
+import Text from "@/components/ui/Text";
+import CodeOutput from "@/components/code/CodeOutput";
+import CodeEditor from "@/components/code/CodeEditor";
+import ButtonBar from "@/components/panels/ButtonBar";
+import SharePanel from "@/components/panels/SharePanel";
+import SavePanel from "@/components/panels/SavePanel";
+import HistoryPanel from "@/components/panels/HistoryPanel";
 import { INITIAL_PYTHON_CODE } from "@/constants/codeSample";
 
+// tailwind classes for the editor/output split layout, kept together
+// since they all need to line up
+const EDITOR_LAYOUT = {
+    container:
+        "w-full min-h-0 flex-1 flex flex-col md:flex-row justify-between items-stretch gap-4 bg-bg text-fg rounded-none",
+    wrapper:
+        "h-full min-h-0 min-w-0 flex-1 flex flex-col md:flex-row justify-between gap-4 rounded-none",
+    editor: "min-w-0 min-h-0 flex flex-col items-stretch w-full h-full md:h-full flex-1 rounded-none",
+    output: "min-h-0 min-w-0 overflow-hidden w-full flex-1 rounded-none",
+};
+
+// main editor page: language picker, code editor, run output, and the
+// save/share/history/fork actions around them
 export default function Home() {
     const { timeString } = useTimer();
+    const { alert } = useDialog();
 
     const {
         code,
@@ -35,15 +53,27 @@ export default function Home() {
         pyodideReady,
     } = useCodeExecution(INITIAL_PYTHON_CODE);
 
-    const [currentHistory, setCurrentHistory] = useState<ShareHistoryEntry[]>(
-        [],
-    );
-    const [isReadOnly, setIsReadOnly] = useState(false);
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const {
+        isInitialLoading,
+        isReadOnly,
+        setIsReadOnly,
+        accessDenied,
+        currentHistory,
+        currentShareId,
+        setCurrentShareId,
+        parentShareId,
+        setParentShareId,
+        defaultVisibility,
+        defaultFriendIds,
+    } = useWorkspaceSync(setCode, setLanguage);
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-    const [generatedShareUrl, setGeneratedShareUrl] = useState("");
+    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+
+    // history panel needs a share id whether the code is currently
+    // shared or was forked from something that was
+    const historyShareId = currentShareId ?? parentShareId;
 
     const { copy, copied } = useCopyCode();
     const { inputRef, triggerUpload, handleFileChange } = useUploadCode(
@@ -51,84 +81,35 @@ export default function Home() {
         isReadOnly,
         setLanguage,
     );
-
-    // Sync initial workspace state from shared link or forked storage
-    useEffect(() => {
-        const handleUrlLoading = async () => {
-            const forkedCode = localStorage.getItem("forked_code");
-            const forkedLang = localStorage.getItem("forked_lang");
-
-            // Load from local storage if workspace was forked
-            if (forkedCode && forkedLang) {
-                setLanguage(forkedLang);
-                setTimeout(() => {
-                    setCode(forkedCode);
-                    localStorage.removeItem("forked_code");
-                    localStorage.removeItem("forked_lang");
-                    setIsInitialLoading(false);
-                }, 100);
-                return;
-            }
-
-            // Fetch record from Supabase if URL contains a share hash
-            const currentHash = window.location.hash;
-            if (currentHash.startsWith("#/share/")) {
-                const shareId = currentHash.replace("#/share/", "");
-                window.location.hash = "";
-
-                if (shareId) {
-                    try {
-                        const { data, error } = await supabase
-                            .from("shares")
-                            .select("*")
-                            .eq("id", shareId)
-                            .single();
-
-                        if (!error && data) {
-                            setLanguage(data.language);
-
-                            // Short timeout lets the hook settle its language change first
-                            setTimeout(() => {
-                                setCode(data.code);
-                                setCurrentHistory(
-                                    (data.history as ShareHistoryEntry[]) || [],
-                                );
-                                setIsReadOnly(true);
-                                setIsInitialLoading(false);
-                            }, 150);
-                            return;
-                        }
-                    } catch (err) {
-                        console.error("Database fetch failed:", err);
-                    }
-                }
-            }
-
-            setIsInitialLoading(false);
-        };
-
-        handleUrlLoading();
-    }, [setCode, setLanguage]);
-
-    const { handleShare, isSharing } = useShareCode(
+    const { createShare, isSharing } = useShareCode(
         code,
         language,
         currentHistory,
+        parentShareId,
     );
 
-    // Dynamic sharing trigger function linked to our customized hook structure
-    const onShareButtonClick = async () => {
-        const url = await handleShare();
-        if (url) {
-            setGeneratedShareUrl(url);
-            setIsShareModalOpen(true);
+    const handleCreateShare = async (
+        visibility: ShareVisibility,
+        friendIds: string[],
+    ): Promise<ShareResult | "AUTH_REQUIRED" | null> => {
+        const result = await createShare(visibility, friendIds);
+        if (result && result !== "AUTH_REQUIRED") {
+            // newly created share becomes the current one, and it's no
+            // longer just a pending fork
+            setCurrentShareId(result.id);
+            setParentShareId(null);
         }
+        return result;
     };
 
-    const handleFork = () => {
+    // drops the read-only lock from a shared snapshot so the user can
+    // edit and later re-share it as their own fork
+    const handleFork = async () => {
         window.location.hash = "";
+        setParentShareId(currentShareId);
+        setCurrentShareId(null);
         setIsReadOnly(false);
-        alert(
+        await alert(
             "Workspace successfully forked! You can now edit and re-share this module.",
         );
     };
@@ -138,47 +119,21 @@ export default function Home() {
         setCode("");
     };
 
-    const buttonList = [
+    // toolbar actions, with upload/clear hidden and share swapped for
+    // fork while viewing a read-only shared snapshot
+    const toolbarButtons = [
         { label: "save", onClick: () => setIsSaveModalOpen(true) },
-        ...(!isReadOnly
-            ? [
-                  {
-                      label: "upload",
-                      onClick: isReadOnly ? undefined : triggerUpload,
-                      disabled: isReadOnly,
-                  },
-              ]
-            : []),
+        ...(!isReadOnly ? [{ label: "upload", onClick: triggerUpload }] : []),
         { label: copied ? "copied!" : "copy", onClick: () => copy(code) },
-        ...(!isReadOnly
-            ? [
-                  {
-                      label: "clear",
-                      onClick: handleClear,
-                  },
-              ]
-            : []),
+        ...(!isReadOnly ? [{ label: "clear", onClick: handleClear }] : []),
         isReadOnly
             ? { label: "fork", onClick: handleFork }
-            : {
-                  label: isSharing ? "sharing..." : "share",
-                  onClick: onShareButtonClick,
-              },
+            : { label: "share", onClick: () => setIsShareModalOpen(true) },
+        { label: "history", onClick: () => setIsHistoryModalOpen(true) },
         { label: isLoading ? "running..." : "run", onClick: handleRunCode },
     ];
 
-    // Layout configuration styles
-    // Below `md` (phone portrait): stack editor over output.
-    // `md` and up: side-by-side as before.
-    const containerClass =
-        "w-full min-h-0 flex-1 flex flex-col md:flex-row justify-between items-stretch gap-4 bg-bg text-fg rounded-none";
-    const editOutWrapperClass =
-        "h-full min-h-0 min-w-0 flex-1 flex flex-col md:flex-row justify-between gap-4 rounded-none";
-    const editorContainerClass =
-        "min-w-0 min-h-0 flex flex-col items-stretch w-full h-full md:h-full flex-1 rounded-none";
-    const outputContainerClass =
-        "min-h-0 min-w-0 overflow-hidden w-full flex-1 rounded-none";
-
+    // still restoring from a share link or fork draft
     if (isInitialLoading) {
         return (
             <main className="c-page-layout rounded-none flex items-center justify-center bg-bg text-fg text-sm font-mono">
@@ -187,11 +142,25 @@ export default function Home() {
         );
     }
 
+    // share link pointed at something the viewer can't open
+    if (accessDenied) {
+        return (
+            <main className="c-page-layout rounded-none flex flex-col items-center justify-center gap-2 bg-bg text-fg text-sm font-mono">
+                <span className="text-error">
+                    🔒 You don't have access to this snapshot.
+                </span>
+                <span className="text-fg-muted text-xs">
+                    Ask the owner to share it with you, or check you're signed
+                    in to the right account.
+                </span>
+            </main>
+        );
+    }
+
     return (
         <main className="c-page-layout rounded-none">
-            {/* Toolbar section */}
             <div className="flex flex-row justify-start gap-4 p-4 items-center flex-wrap rounded-none">
-                <Text label="COD" formatting="bold" className="font-mambo"/>
+                <Text label="COD" formatting="bold" className="font-mambo" />
                 <Text label={`| Time  ${timeString}`} />
 
                 <select
@@ -207,14 +176,16 @@ export default function Home() {
                     ))}
                 </select>
 
+                {/* pyodide is a large download, let the user know it's still loading */}
                 {language === "python" && !pyodideReady && (
                     <span className="text-comment text-xs italic animate-pulse font-mono">
                         loading python runtime…
                     </span>
                 )}
 
-                <ButtonBar buttons={buttonList} />
+                <ButtonBar buttons={toolbarButtons} />
 
+                {/* hidden, triggered programmatically by the upload button */}
                 <input
                     ref={inputRef}
                     type="file"
@@ -224,11 +195,10 @@ export default function Home() {
                 />
             </div>
 
-            {/* Split Editor and Output panels */}
-            <div className={containerClass}>
-                <div className={editOutWrapperClass}>
-                    {/* Editor Panel */}
-                    <div className={editorContainerClass}>
+            <div className={EDITOR_LAYOUT.container}>
+                <div className={EDITOR_LAYOUT.wrapper}>
+                    <div className={EDITOR_LAYOUT.editor}>
+                        {/* shown while viewing someone else's shared code */}
                         {isReadOnly && (
                             <div className="bg-bg-surface border border-border px-3 py-1.5 text-xs text-interactive italic flex justify-between items-center mb-2 rounded-none animate-fade-in font-mono">
                                 Viewing shared code snapshot (Read-Only Mode)
@@ -244,8 +214,7 @@ export default function Home() {
                         />
                     </div>
 
-                    {/* Terminal Output Panel */}
-                    <div className={outputContainerClass}>
+                    <div className={EDITOR_LAYOUT.output}>
                         <CodeOutput
                             lines={lines}
                             isLoading={isLoading}
@@ -256,7 +225,6 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Save Panel Modal */}
             <SavePanel
                 isOpen={isSaveModalOpen}
                 onClose={() => setIsSaveModalOpen(false)}
@@ -264,11 +232,19 @@ export default function Home() {
                 language={language}
             />
 
-            {/* Share Panel Modal Component Overlay */}
-            <ShareModal
+            <SharePanel
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
-                shareUrl={generatedShareUrl}
+                isCreating={isSharing}
+                defaultVisibility={defaultVisibility}
+                defaultFriendIds={defaultFriendIds}
+                onCreateShare={handleCreateShare}
+            />
+
+            <HistoryPanel
+                isOpen={isHistoryModalOpen}
+                onClose={() => setIsHistoryModalOpen(false)}
+                shareId={historyShareId}
             />
         </main>
     );

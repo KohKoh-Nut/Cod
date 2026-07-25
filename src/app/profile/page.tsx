@@ -1,11 +1,19 @@
 "use client";
 
-import { useProfileData } from "@/hooks/useProfileData";
-import { ShareCard } from "@/components/profile/ShareCard";
+import { useProfileData } from "@/hooks/profile/useProfileData";
+import ShareCard from "@/components/profile/ShareCard";
 
+// the signed-in user's own dashboard: their shares, visibility setting,
+// and everything friends have shared with them, grouped by sender
 export default function ProfilePage() {
-    const { loading, username, myShares, handleLogout, handleDelete } =
-        useProfileData();
+    const {
+        loading,
+        username,
+        visibility,
+        myShares,
+        sharedWithMe,
+        handleDelete,
+    } = useProfileData();
 
     if (loading) {
         return (
@@ -26,19 +34,21 @@ export default function ProfilePage() {
                         Review your shared links and repository tree snapshots.
                     </p>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 bg-error hover:bg-brand-hover text-bg font-bold transition duration-200 ease-in-out text-sm rounded-none cursor-pointer"
-                >
-                    Log Out
-                </button>
+
+                {/* icon reflects the profile's current visibility setting */}
+                <span className="text-xs font-mono px-2 py-1 border border-border text-comment bg-bg-element">
+                    {visibility === "public"
+                        ? "🌐 Public"
+                        : visibility === "friends"
+                          ? "👥 Friends"
+                          : "🔒 Private"}
+                </span>
             </header>
 
-            <section className="flex flex-col gap-4 rounded-none">
+            <section className="flex flex-col gap-4 rounded-none mb-8">
                 <h2 className="text-xl font-semibold text-fg">
                     Your Shared Code Modules ({myShares.length})
                 </h2>
-
                 {myShares.length === 0 ? (
                     <div className="text-center p-8 border border-dashed border-border rounded-none text-fg-muted bg-bg-surface">
                         {
@@ -50,13 +60,38 @@ export default function ProfilePage() {
                         {myShares.map((item) => (
                             <ShareCard
                                 key={item.id}
-                                item={item}
+                                share={item}
+                                isOwner={true}
                                 onDelete={handleDelete}
                             />
                         ))}
                     </div>
                 )}
             </section>
+
+            {/* one section per person who has shared code with this user */}
+            {Object.entries(sharedWithMe).map(
+                ([senderId, { username: senderName, shares }]) => (
+                    <section
+                        key={senderId}
+                        className="flex flex-col gap-4 rounded-none mb-8"
+                    >
+                        <h2 className="text-xl font-semibold text-fg">
+                            Code Shared with Me by {senderName} ({shares.length}
+                            )
+                        </h2>
+                        <div className="grid grid-cols-1 gap-3 rounded-none">
+                            {shares.map((item) => (
+                                <ShareCard
+                                    key={item.id}
+                                    share={item}
+                                    isOwner={false}
+                                />
+                            ))}
+                        </div>
+                    </section>
+                ),
+            )}
         </div>
     );
 }

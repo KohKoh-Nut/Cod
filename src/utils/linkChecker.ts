@@ -1,6 +1,4 @@
-/**
- * Checks if a link points to an external URL or an internal route
- */
+// true if the link points outside this app (full URL or protocol-relative)
 export function isExternalLink(link: string): boolean {
     return (
         link.startsWith("http://") ||
