@@ -122,16 +122,16 @@ export default function Home() {
     // toolbar actions, with upload/clear hidden and share swapped for
     // fork while viewing a read-only shared snapshot
     const toolbarButtons = [
-        { label: "save", onClick: () => setIsSaveModalOpen(true) },
-        ...(!isReadOnly ? [{ label: "upload", onClick: triggerUpload }] : []),
-        { label: copied ? "copied!" : "copy", onClick: () => copy(code) },
-        ...(!isReadOnly ? [{ label: "clear", onClick: handleClear }] : []),
+        { label: "Save", onClick: () => setIsSaveModalOpen(true) },
+        ...(!isReadOnly ? [{ label: "Upload", onClick: triggerUpload }] : []),
+        { label: copied ? "Copied!" : "Copy", onClick: () => copy(code) },
+        ...(!isReadOnly ? [{ label: "Clear", onClick: handleClear }] : []),
         isReadOnly
-            ? { label: "fork", onClick: handleFork }
-            : { label: "share", onClick: () => setIsShareModalOpen(true) },
-        { label: "history", onClick: () => setIsHistoryModalOpen(true) },
+            ? { label: "Fork", onClick: handleFork }
+            : { label: "Share", onClick: () => setIsShareModalOpen(true) },
+        { label: "History", onClick: () => setIsHistoryModalOpen(true) },
         {
-            label: isLoading ? "running..." : "run",
+            label: isLoading ? "Running..." : "Run",
             onClick: handleRunCode,
             disabled: isLoading,
         },
