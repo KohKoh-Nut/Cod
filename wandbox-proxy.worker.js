@@ -5,7 +5,7 @@
 //   GET  /debug-compilers  — compiler list filtered by language
 
 // origins allowed to call this worker
-const ALLOWED_ORIGINS = ["https://<your-username>.github.io"];
+const ALLOWED_ORIGINS = ["https://kohkoh-nut.github.io"];
 
 // rate limit: max requests per IP per window
 const RATE_LIMIT = 20;

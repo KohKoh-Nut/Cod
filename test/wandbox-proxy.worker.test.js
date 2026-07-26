@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import worker from "../wandbox-proxy.worker.js";
 
-const ALLOWED_ORIGIN = "https://<your-username>.github.io";
+const ALLOWED_ORIGIN = "https://kohkoh-nut.github.io";
 
 // fake KV binding, backed by a plain Map instead of real Cloudflare KV
 function makeFakeKV() {
