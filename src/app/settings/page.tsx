@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase-client";
 import {
@@ -9,6 +10,7 @@ import {
 import ThemeSwiper from "@/components/theme/ThemeSwiper";
 import Text from "@/components/ui/Text";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 // order shown in the visibility picker
 const VISIBILITY_OPTIONS: ProfileVisibility[] = [
@@ -17,10 +19,27 @@ const VISIBILITY_OPTIONS: ProfileVisibility[] = [
     "private",
 ];
 
-// account settings: theme, profile visibility, and logout
+// account settings: theme, username, profile visibility, and logout
 export default function SettingsPage() {
     const router = useRouter();
-    const { visibility, handleVisibilityChange } = useProfileData();
+    const {
+        username,
+        visibility,
+        usernameError,
+        usernameSaving,
+        handleVisibilityChange,
+        handleUsernameChange,
+    } = useProfileData();
+
+    // local draft of the username field, kept separate from the saved
+    // value so the input doesn't jump around while the profile is loading
+    const [usernameDraft, setUsernameDraft] = useState(username);
+    const [usernameSuccess, setUsernameSuccess] = useState(false);
+
+    // once the real username has loaded, seed the draft with it
+    useEffect(() => {
+        setUsernameDraft(username);
+    }, [username]);
 
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -30,6 +49,14 @@ export default function SettingsPage() {
         }
     };
 
+    // saves the new username; shows a confirmation only when it actually changed
+    const handleUsernameSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setUsernameSuccess(false);
+        const ok = await handleUsernameChange(usernameDraft);
+        if (ok) setUsernameSuccess(true);
+    };
+
     return (
         <div className="p-6 flex flex-col gap-8 max-w-2xl mx-auto w-full">
             <Text type="header" level={2} label="Settings" />
@@ -37,6 +64,47 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-3 border-b border-border pb-6">
                 <Text type="header" level={3} label="Appearance" />
                 <ThemeSwiper />
+            </div>
+
+            <div className="flex flex-col gap-3 border-b border-border pb-6">
+                <Text type="header" level={3} label="Username" />
+                <Text
+                    type="description"
+                    color="muted"
+                    label="This is the name friends use to find and add you."
+                />
+                <form
+                    onSubmit={handleUsernameSubmit}
+                    className="flex items-end gap-2"
+                >
+                    <div className="flex-1">
+                        <Input
+                            label="Username"
+                            type="text"
+                            value={usernameDraft}
+                            onChange={(e) => {
+                                setUsernameDraft(e.target.value);
+                                setUsernameSuccess(false);
+                            }}
+                            error={usernameError || undefined}
+                        />
+                    </div>
+                    <Button
+                        label={usernameSaving ? "Saving..." : "Save"}
+                        type="submit"
+                        size="sm"
+                        disabled={
+                            usernameSaving || usernameDraft === username
+                        }
+                    />
+                </form>
+                {usernameSuccess && (
+                    <Text
+                        type="description"
+                        color="muted"
+                        label="Username updated."
+                    />
+                )}
             </div>
 
             <div className="flex flex-col gap-3 border-b border-border pb-6">
