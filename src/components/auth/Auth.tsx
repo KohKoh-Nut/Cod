@@ -86,16 +86,23 @@ export default function Auth() {
     // creates a new account after validating the password
     const handleSignUp = async () => {
         const validationError = validatePassword();
-
         if (validationError) {
             setError(validationError);
             return;
         }
 
+        const isDev = window.location.hostname === "localhost";
+        const emailRedirectTo = isDev
+            ? "http://localhost:3000/Cod/login"
+            : "https://kohkoh-nut.github.io/Cod/login";
+
         const { error } = await supabase.auth.signUp({
             email,
             password,
-            options: { data: { name: username } },
+            options: {
+                data: { name: username },
+                emailRedirectTo,
+            },
         });
 
         if (error) {
