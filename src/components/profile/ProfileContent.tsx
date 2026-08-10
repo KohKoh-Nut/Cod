@@ -120,15 +120,6 @@ export default function ProfileContent() {
                             label={profile?.username ?? ""}
                         />
 
-                        {/* email is only shown to friends and the owner, never to strangers */}
-                        {relation !== "stranger" && (
-                            <Text
-                                label={profile?.email ?? ""}
-                                type="description"
-                                color="muted"
-                            />
-                        )}
-
                         <span className="text-xs font-mono text-comment mt-1">
                             {relation === "owner"
                                 ? "You"

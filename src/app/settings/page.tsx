@@ -52,6 +52,9 @@ export default function SettingsPage() {
     // saves the new username; shows a confirmation only when it actually changed
     const handleUsernameSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // pressing enter in the field still fires a submit even while the
+        // button is disabled, so the in-flight save has to be guarded here too
+        if (usernameSaving) return;
         setUsernameSuccess(false);
         const ok = await handleUsernameChange(usernameDraft);
         if (ok) setUsernameSuccess(true);
@@ -63,6 +66,11 @@ export default function SettingsPage() {
 
             <div className="flex flex-col gap-3 border-b border-border pb-6">
                 <Text type="header" level={3} label="Appearance" />
+                <Text
+                    type="description"
+                    color="muted"
+                    label="Choose how Cod looks on this device."
+                />
                 <ThemeSwiper />
             </div>
 
@@ -82,6 +90,7 @@ export default function SettingsPage() {
                             label="Username"
                             type="text"
                             value={usernameDraft}
+                            disabled={usernameSaving}
                             onChange={(e) => {
                                 setUsernameDraft(e.target.value);
                                 setUsernameSuccess(false);
@@ -93,9 +102,7 @@ export default function SettingsPage() {
                         label={usernameSaving ? "Saving..." : "Save"}
                         type="submit"
                         size="sm"
-                        disabled={
-                            usernameSaving || usernameDraft === username
-                        }
+                        disabled={usernameSaving || usernameDraft === username}
                     />
                 </form>
                 {usernameSuccess && (

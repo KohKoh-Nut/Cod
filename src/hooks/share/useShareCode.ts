@@ -6,7 +6,6 @@ import { ShareVisibility } from "@/types/share";
 // one entry in a share's history, recording who shared it and when
 export interface ShareHistoryEntry {
     user_id: string;
-    email: string | undefined;
     timestamp: string;
 }
 
@@ -42,13 +41,15 @@ export function useShareCode(
             }
 
             const userId = session.user.id;
-            const userEmail = session.user.email;
             const timestamp = new Date().toISOString();
 
-            // append this share event to the running history
+            // append this share event to the running history. username is
+            // looked up separately when the history is displayed (see
+            // useForkTree), so no personal info needs to travel with the
+            // share row itself -- shares can be public, and this whole
+            // object goes straight to whoever fetches it
             const newHistoryEntry: ShareHistoryEntry = {
                 user_id: userId,
-                email: userEmail,
                 timestamp,
             };
             const updatedHistory = [...currentHistory, newHistoryEntry];

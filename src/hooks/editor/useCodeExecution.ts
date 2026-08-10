@@ -153,11 +153,14 @@ export function useCodeExecution(initialCode: string) {
         return worker;
     }, []);
 
-    // changing language also resets the editor to that language's sample code
-    const switchLanguage = (lang: string) => {
+    // changing language also resets the editor to that language's sample
+    // code. Memoized so its identity stays stable across renders --
+    // useWorkspaceSync depends on this function, and an unstable identity
+    // would re-run that effect (and re-sync from storage) on every keystroke
+    const switchLanguage = useCallback((lang: string) => {
         setLanguage(lang);
         setCode(getDefaultCode(lang));
-    };
+    }, []);
 
     const pushLine = (line: TerminalLine) => {
         setLines((prev) => [...prev, line]);

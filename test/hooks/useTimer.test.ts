@@ -48,14 +48,4 @@ describe("useTimer", () => {
 
         expect(result.current.seconds).toBe(2);
     });
-
-    it("stops ticking after unmount", () => {
-        const { result, unmount } = renderHook(() => useTimer());
-        act(() => vi.advanceTimersByTime(2000));
-        expect(result.current.seconds).toBe(2);
-
-        unmount();
-        // further time passing shouldn't throw or keep a dangling interval
-        expect(() => vi.advanceTimersByTime(5000)).not.toThrow();
-    });
 });

@@ -6,6 +6,9 @@ export interface GraphNode {
     username: string;
     initials: string;
     isCurrentUser: boolean;
+    // how many edges touch this node -- used to size it, so someone
+    // you share more connections with reads as a bigger, more central node
+    connections: number;
 }
 
 export interface GraphEdge {
@@ -35,7 +38,7 @@ export function useFriendGraph(
     // friend graph visualization
     return useMemo(() => {
         // current user is always the center node
-        const nodeMap = new Map<string, GraphNode>();
+        const nodeMap = new Map<string, Omit<GraphNode, "connections">>();
 
         nodeMap.set(currentUser.id, {
             id: currentUser.id,
@@ -64,9 +67,19 @@ export function useFriendGraph(
             });
         });
 
-        return {
-            nodes: Array.from(nodeMap.values()),
-            edges,
-        };
+        // count how many edges touch each node, so nodes with more shared
+        // connections render bigger
+        const degree = new Map<string, number>();
+        edges.forEach((e) => {
+            degree.set(e.source, (degree.get(e.source) ?? 0) + 1);
+            degree.set(e.target, (degree.get(e.target) ?? 0) + 1);
+        });
+
+        const nodes = Array.from(nodeMap.values()).map((n) => ({
+            ...n,
+            connections: degree.get(n.id) ?? 0,
+        }));
+
+        return { nodes, edges };
     }, [currentUser, friends]);
 }

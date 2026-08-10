@@ -56,14 +56,36 @@ async function fetchSharedWithMe(
     return grouped;
 }
 
-// enforces the app's username rules: short, plain, and safe to put in a url
-function validateUsername(value: string): string | null {
+// enforces the app's username rules: short, plain, and safe to put in a
+// url. Exported so signup can validate before the account is even created.
+export function validateUsername(value: string): string | null {
     if (value.length < 3) return "Username must be at least 3 characters long.";
     if (value.length > 20)
         return "Username must be at most 20 characters long.";
     if (!/^[a-zA-Z0-9_]+$/.test(value))
         return "Username can only contain letters, numbers, and underscores.";
     return null;
+}
+
+// checks whether a username is already taken, case-insensitively.
+// excludeUserId lets a user "collide" with their own current username
+// when they're not actually changing it.
+export async function isUsernameTaken(
+    username: string,
+    excludeUserId?: string,
+): Promise<boolean | null> {
+    let query = supabase
+        .from("profiles")
+        .select("id")
+        .ilike("username", username);
+    if (excludeUserId) query = query.neq("id", excludeUserId);
+
+    const { data, error } = await query.maybeSingle();
+    if (error) {
+        console.error("Error checking username availability:", error.message);
+        return null;
+    }
+    return !!data;
 }
 
 // backs the "my profile" settings/dashboard page: current user's info,
@@ -183,24 +205,13 @@ export function useProfileData(): UseProfileDataReturn {
 
         setUsernameSaving(true);
 
-        const { data: existing, error: lookupError } = await supabase
-            .from("profiles")
-            .select("id")
-            .ilike("username", trimmed)
-            .neq("id", userId)
-            .maybeSingle();
-
-        if (lookupError) {
-            console.error(
-                "Error checking username availability:",
-                lookupError.message,
-            );
+        const taken = await isUsernameTaken(trimmed, userId);
+        if (taken === null) {
             setUsernameError("Something went wrong. Please try again.");
             setUsernameSaving(false);
             return false;
         }
-
-        if (existing) {
+        if (taken) {
             setUsernameError("That username is already taken.");
             setUsernameSaving(false);
             return false;

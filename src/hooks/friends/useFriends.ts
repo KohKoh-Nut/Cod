@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/utils/supabase-client";
+import { toFriendlyError } from "@/utils/errorMessages";
 
 export interface UserProfile {
     id: string;
     username: string;
-    email: string;
 }
 
 export interface FriendRequest {
@@ -46,7 +46,7 @@ export function useFriends(currentUserId: string) {
         friend_id,
         created_at,
         friend:profiles!friends_friend_id_fkey (
-          id, username, email
+          id, username
         )
       `,
             )
@@ -71,7 +71,7 @@ export function useFriends(currentUserId: string) {
         status,
         created_at,
         sender:profiles!friend_requests_sender_id_fkey (
-          id, username, email
+          id, username
         )
       `,
             )
@@ -110,7 +110,7 @@ export function useFriends(currentUserId: string) {
 
         const { data, error } = await supabase
             .from("profiles")
-            .select("id, username, email")
+            .select("id, username")
             .ilike("username", `%${query}%`)
             .neq("id", currentUserId)
             .limit(10);
@@ -128,7 +128,13 @@ export function useFriends(currentUserId: string) {
             .insert({ sender_id: currentUserId, receiver_id: receiverId });
         if (error) {
             console.error("Error sending request:", error.message);
-            setError(error.message);
+            // 23505 is a unique-constraint violation -- a request already
+            // exists between these two users
+            setError(
+                error.code === "23505"
+                    ? "You've already sent a request to this user."
+                    : toFriendlyError(error),
+            );
             return false;
         }
         await fetchSentRequests();
@@ -144,7 +150,7 @@ export function useFriends(currentUserId: string) {
 
         if (error) {
             console.error("Error accepting request:", error.message);
-            setError(error.message);
+            setError(toFriendlyError(error));
             return false;
         }
         await fetchPendingRequests();
@@ -161,7 +167,7 @@ export function useFriends(currentUserId: string) {
 
         if (error) {
             console.error("Error declining request:", error.message);
-            setError(error.message);
+            setError(toFriendlyError(error));
             return false;
         }
         await fetchPendingRequests();
@@ -180,7 +186,7 @@ export function useFriends(currentUserId: string) {
 
         if (error) {
             console.error("Error removing friend:", error.message);
-            setError(error.message);
+            setError(toFriendlyError(error));
             return false;
         }
         await fetchFriends();

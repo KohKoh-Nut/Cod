@@ -17,6 +17,13 @@ function clearForkStorage() {
     FORK_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
 }
 
+// localStorage keys the editor's own draft is kept under, so the code
+// survives navigating to another page and back. Separate from the fork
+// keys above, which only ever hold a one-shot draft waiting to be loaded.
+// Exported so useWorkspaceDraft can write to the same keys this hook reads.
+export const DRAFT_CODE_KEY = "draft_code";
+export const DRAFT_LANGUAGE_KEY = "draft_language";
+
 // looks up everyone a friends-only share was sent to, using a database
 // function since a plain select would only return the caller's own row
 async function fetchRecipientIds(shareId: string) {
@@ -145,9 +152,26 @@ export function useWorkspaceSync(
             return true;
         };
 
-        // shared link always wins over a leftover fork draft; if a fork
-        // draft never got cleaned up it shouldn't be able to permanently
-        // block future share links from loading
+        // restores whatever the user was last editing, kept in localStorage
+        // by useWorkspaceDraft so leaving the page (or closing the tab)
+        // doesn't lose it
+        const loadFromPersistedDraft = () => {
+            const draftCode = localStorage.getItem(DRAFT_CODE_KEY);
+            const draftLanguage = localStorage.getItem(DRAFT_LANGUAGE_KEY);
+            if (draftCode === null || draftLanguage === null) return false;
+
+            setLanguage(draftLanguage);
+            setTimeout(() => {
+                setCode(draftCode);
+                setIsInitialLoading(false);
+            }, 100);
+            return true;
+        };
+
+        // priority order: a share link always wins, since it's the most
+        // explicit thing the user could be pointing at; then a leftover
+        // fork draft, so it isn't permanently blocked by a stale one; then
+        // whatever was last being edited
         const sync = async () => {
             const hash = window.location.hash;
             if (hash.startsWith("#/share/")) {
@@ -157,6 +181,7 @@ export function useWorkspaceSync(
             }
 
             if (loadFromForkedDraft()) return;
+            if (loadFromPersistedDraft()) return;
 
             setIsInitialLoading(false);
         };

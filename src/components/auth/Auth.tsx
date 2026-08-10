@@ -5,8 +5,21 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { supabase } from "@/utils/supabase-client";
+import { toFriendlyError } from "@/utils/errorMessages";
+import {
+    validateUsername,
+    isUsernameTaken,
+} from "@/hooks/profile/useProfileData";
 
 type AuthMode = "signin" | "signup" | "forgot" | "reset";
+type OAuthProvider = "google" | "github";
+
+// oauth providers offered alongside email/password, shown on both the
+// sign in and sign up forms since supabase treats them the same way
+const OAUTH_PROVIDERS: { provider: OAuthProvider; label: string }[] = [
+    { provider: "google", label: "Continue with Google" },
+    { provider: "github", label: "Continue with GitHub" },
+];
 
 // single form that swaps between sign in, sign up, forgot password, and
 // reset password, all sharing one set of fields
@@ -77,13 +90,16 @@ export default function Auth() {
         });
 
         if (error) {
-            setError(error.message);
+            console.error("Sign in error:", error.message);
+            setError(toFriendlyError(error));
             return;
         }
         router.push("/");
     };
 
-    // creates a new account after validating the password
+    // creates a new account after validating the password and username.
+    // the username is checked up front so a taken name fails fast here
+    // instead of surfacing as a confusing error after the account exists
     const handleSignUp = async () => {
         const validationError = validatePassword();
         if (validationError) {
@@ -91,10 +107,30 @@ export default function Auth() {
             return;
         }
 
+        const usernameError = validateUsername(username.trim());
+        if (usernameError) {
+            setError(usernameError);
+            return;
+        }
+
+        const taken = await isUsernameTaken(username.trim());
+        if (taken === null) {
+            setError("Something went wrong. Please try again.");
+            return;
+        }
+        if (taken) {
+            setError("That username is already taken.");
+            return;
+        }
+
+        // the confirmation link needs to land on a page that checks for the
+        // new session and routes onward, not straight on the login form --
+        // otherwise the user ends up signed in but still staring at a
+        // sign-in prompt
         const isDev = window.location.hostname === "localhost";
         const emailRedirectTo = isDev
-            ? "http://localhost:3000/Cod/login"
-            : "https://kohkoh-nut.github.io/Cod/login";
+            ? "http://localhost:3000/Cod/auth/callback"
+            : "https://kohkoh-nut.github.io/Cod/auth/callback";
 
         const { error } = await supabase.auth.signUp({
             email,
@@ -106,7 +142,8 @@ export default function Auth() {
         });
 
         if (error) {
-            setError(error.message);
+            console.error("Sign up error:", error.message);
+            setError(toFriendlyError(error));
             return;
         }
         setSuccess("Account created! Check your email to confirm.");
@@ -131,7 +168,8 @@ export default function Auth() {
         });
 
         if (error) {
-            setError(error.message);
+            console.error("Password reset request error:", error.message);
+            setError(toFriendlyError(error));
             return;
         }
         setSuccess("Password reset link sent! Check your email.");
@@ -149,7 +187,8 @@ export default function Auth() {
 
         const { error } = await supabase.auth.updateUser({ password });
         if (error) {
-            setError(error.message);
+            console.error("Password update error:", error.message);
+            setError(toFriendlyError(error));
             return;
         }
         setSuccess("Password updated successfully!");
@@ -159,6 +198,26 @@ export default function Auth() {
             setConfirmPassword("");
             clearMessages();
         }, 2000);
+    };
+
+    // redirects to the provider's own sign-in page; supabase handles the
+    // callback and lands the user back on /auth/callback with a session
+    const handleOAuthSignIn = async (provider: OAuthProvider) => {
+        clearMessages();
+
+        const isDev = window.location.hostname === "localhost";
+        const redirectTo = isDev
+            ? "http://localhost:3000/Cod/auth/callback"
+            : "https://kohkoh-nut.github.io/Cod/auth/callback";
+
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: { redirectTo },
+        });
+        if (error) {
+            console.error("OAuth sign in error:", error.message);
+            setError(toFriendlyError(error));
+        }
     };
 
     // routes form submission to whichever action matches the current mode
@@ -264,6 +323,28 @@ export default function Auth() {
                     scale="bounce"
                     className="w-full mt-2"
                 />
+
+                {(mode === "signin" || mode === "signup") && (
+                    <>
+                        <div className="flex items-center gap-3">
+                            <div className="h-px flex-1 bg-border" />
+                            <span className="text-xs text-comment">or</span>
+                            <div className="h-px flex-1 bg-border" />
+                        </div>
+
+                        {OAUTH_PROVIDERS.map((p) => (
+                            <Button
+                                key={p.provider}
+                                label={p.label}
+                                type="button"
+                                size="md"
+                                scale="none"
+                                className="w-full"
+                                onClick={() => handleOAuthSignIn(p.provider)}
+                            />
+                        ))}
+                    </>
+                )}
             </form>
 
             <div className="flex flex-col items-center gap-2 mt-4">

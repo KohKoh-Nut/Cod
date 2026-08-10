@@ -43,37 +43,34 @@ export default function ThemeSwiper() {
     }, [theme]);
 
     return (
-        <div className="flex flex-col gap-2">
-            <p className="text-sm text-comment">Appearance</p>
+        <div
+            ref={trackRef}
+            role="radiogroup"
+            aria-label="Theme"
+            className="relative flex w-60 cursor-pointer select-none rounded-none border border-border bg-bg-surface p-[3px]"
+        >
             <div
-                ref={trackRef}
-                role="radiogroup"
-                aria-label="Theme"
-                className="relative flex w-60 cursor-pointer select-none rounded-none border border-border bg-bg-surface p-[3px]"
-            >
-                <div
-                    ref={thumbRef}
-                    className="absolute top-[3px] bottom-[3px] rounded-none border border-border bg-bg-element transition-all duration-200 ease-in-out"
-                />
+                ref={thumbRef}
+                className="absolute top-[3px] bottom-[3px] rounded-none border border-border bg-bg-element transition-all duration-200 ease-in-out"
+            />
 
-                {OPTIONS.map((opt) => (
-                    <button
-                        key={opt.value}
-                        type="button"
-                        role="radio"
-                        aria-checked={theme === opt.value}
-                        onClick={() => setTheme(opt.value)}
-                        className={`relative z-10 flex flex-1 items-center justify-center gap-1 rounded-none py-1.5 text-xs transition-colors duration-200 ${
-                            theme === opt.value
-                                ? "font-medium text-fg"
-                                : "text-comment hover:text-fg-muted"
-                        }`}
-                    >
-                        <i className={`ti ${opt.icon}`} aria-hidden="true" />
-                        {opt.label}
-                    </button>
-                ))}
-            </div>
+            {OPTIONS.map((opt) => (
+                <button
+                    key={opt.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={theme === opt.value}
+                    onClick={() => setTheme(opt.value)}
+                    className={`relative z-10 flex flex-1 items-center justify-center gap-1 rounded-none py-1.5 text-xs transition-colors duration-200 ${
+                        theme === opt.value
+                            ? "font-medium text-fg"
+                            : "text-comment hover:text-fg-muted"
+                    }`}
+                >
+                    <i className={`ti ${opt.icon}`} aria-hidden="true" />
+                    {opt.label}
+                </button>
+            ))}
         </div>
     );
 }

@@ -11,6 +11,7 @@ import { useShareCode } from "@/hooks/share/useShareCode";
 import { useCopyCode } from "@/hooks/editor/useCopyCode";
 import { useUploadCode } from "@/hooks/editor/useUploadCode";
 import { useWorkspaceSync } from "@/hooks/editor/useWorkspaceSync";
+import { useWorkspaceDraft } from "@/hooks/editor/useWorkspaceDraft";
 import { useDialog } from "@/hooks/ui/useDialog";
 import { ShareVisibility } from "@/types/share";
 import { ShareResult } from "@/hooks/share/useShareCode";
@@ -66,6 +67,10 @@ export default function Home() {
         defaultVisibility,
         defaultFriendIds,
     } = useWorkspaceSync(setCode, setLanguage);
+
+    // keeps the draft around across page navigation, so it's still here
+    // when the user comes back to the editor
+    useWorkspaceDraft(code, language, isReadOnly, isInitialLoading);
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);

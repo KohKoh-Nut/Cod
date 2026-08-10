@@ -10,6 +10,15 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
 
+// short date shown for how long a friendship has existed
+function formatDate(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+}
+
 // loads the current user first, so the friends page never renders
 // without knowing who's viewing it
 export default function FriendsPage() {
@@ -26,7 +35,7 @@ export default function FriendsPage() {
 
             const { data } = await supabase
                 .from("profiles")
-                .select("id, username, email")
+                .select("id, username")
                 .eq("id", sessionData.session.user.id)
                 .single();
 
@@ -243,7 +252,7 @@ function FriendsContent({ currentUser }: { currentUser: UserProfile }) {
                                             type="description"
                                         />
                                         <Text
-                                            label={f.friend.email}
+                                            label={`Friends since ${formatDate(f.created_at)}`}
                                             type="description"
                                             color="muted"
                                         />

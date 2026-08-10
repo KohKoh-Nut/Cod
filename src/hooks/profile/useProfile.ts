@@ -7,7 +7,6 @@ export type ProfileVisibility = "public" | "friends" | "private";
 export interface Profile {
     id: string;
     username: string;
-    email: string;
     visibility: ProfileVisibility;
 }
 
@@ -76,7 +75,7 @@ export function useProfile(username: string, currentUserId: string) {
 
         const { data: profileData, error: profileError } = await supabase
             .from("profiles")
-            .select("id, username, email, visibility")
+            .select("id, username, visibility")
             .eq("username", username)
             .single();
 
