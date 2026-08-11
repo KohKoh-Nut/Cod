@@ -50,14 +50,18 @@ describe("Text: url links", () => {
 
     it("does not open an internal link in a new tab", () => {
         render(<Text type="url" link="/friends" label="see friends" />);
-        expect(screen.getByText("see friends").closest("a")).not.toHaveAttribute(
-            "target",
-        );
+        expect(
+            screen.getByText("see friends").closest("a"),
+        ).not.toHaveAttribute("target");
     });
 
     it("renders an external link with target=_blank and rel=noopener", () => {
         render(
-            <Text type="url" link="https://example.com" label="external site" />,
+            <Text
+                type="url"
+                link="https://example.com"
+                label="external site"
+            />,
         );
         const anchor = screen.getByText("external site").closest("a")!;
         expect(anchor).toHaveAttribute("href", "https://example.com");
@@ -76,7 +80,9 @@ describe("Text: url links", () => {
     });
 
     it("still renders as a plain tag (not a link) when `as` overrides a url type", () => {
-        render(<Text type="url" as="span" link="/friends" label="see friends" />);
+        render(
+            <Text type="url" as="span" link="/friends" label="see friends" />,
+        );
         expect(screen.getByText("see friends").tagName).toBe("SPAN");
     });
 });

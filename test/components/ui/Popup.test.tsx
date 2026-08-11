@@ -30,7 +30,9 @@ describe("Popup", () => {
             </Popup>,
         );
 
-        await userEvent.click(screen.getByRole("button", { name: "Close panel" }));
+        await userEvent.click(
+            screen.getByRole("button", { name: "Close panel" }),
+        );
 
         expect(onClose).toHaveBeenCalledTimes(1);
     });
@@ -46,11 +48,17 @@ describe("Popup", () => {
 
     it("shows a description when given one", () => {
         render(
-            <Popup isOpen onClose={() => {}} description="Anyone with the link can view it">
+            <Popup
+                isOpen
+                onClose={() => {}}
+                description="Anyone with the link can view it"
+            >
                 content
             </Popup>,
         );
-        expect(screen.getByText("Anyone with the link can view it")).toBeInTheDocument();
+        expect(
+            screen.getByText("Anyone with the link can view it"),
+        ).toBeInTheDocument();
     });
 
     it("omits the header block entirely when neither title nor description is given", () => {

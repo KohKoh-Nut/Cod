@@ -47,6 +47,13 @@ export default function FriendGraph({ data }: FriendGraphProps) {
             return prev ? { ...n, x: prev.x, y: prev.y } : { ...n };
         });
 
+        // clone the edges rather than handing d3 the original array --
+        // forceLink mutates source/target from ids into direct node
+        // references in place, and since data.edges is memoized in
+        // useFriendGraph, that mutation would otherwise leak into the
+        // next mount and leave it pointing at this mount's stale nodes
+        const simEdges: GraphEdge[] = data.edges.map((e) => ({ ...e }));
+
         // clear anything from a previous render before drawing again
         d3.select(svgRef.current).selectAll("*").remove();
 
@@ -78,7 +85,7 @@ export default function FriendGraph({ data }: FriendGraphProps) {
             .force(
                 "link",
                 d3
-                    .forceLink<SimNode, GraphEdge>(data.edges)
+                    .forceLink<SimNode, GraphEdge>(simEdges)
                     .id((d) => d.id)
                     .distance(130),
             )
@@ -93,7 +100,7 @@ export default function FriendGraph({ data }: FriendGraphProps) {
         const link = svg
             .append("g")
             .selectAll("line")
-            .data(data.edges)
+            .data(simEdges)
             .join("line")
             .attr("stroke", "var(--color-border)")
             .attr("stroke-width", 1.5)

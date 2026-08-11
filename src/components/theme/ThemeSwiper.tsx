@@ -61,13 +61,16 @@ export default function ThemeSwiper() {
                     role="radio"
                     aria-checked={theme === opt.value}
                     onClick={() => setTheme(opt.value)}
-                    className={`relative z-10 flex flex-1 items-center justify-center gap-1 rounded-none py-1.5 text-xs transition-colors duration-200 ${
+                    className={`relative z-10 flex flex-1 items-center justify-center gap-1.5 rounded-none py-1.5 text-xs leading-none transition-colors duration-200 ${
                         theme === opt.value
                             ? "font-medium text-fg"
                             : "text-comment hover:text-fg-muted"
                     }`}
                 >
-                    <i className={`ti ${opt.icon}`} aria-hidden="true" />
+                    <i
+                        className={`ti ${opt.icon} text-sm leading-none`}
+                        aria-hidden="true"
+                    />
                     {opt.label}
                 </button>
             ))}

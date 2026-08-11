@@ -14,9 +14,18 @@ function setScrollMetrics(
     el: HTMLElement,
     { scrollHeight = 0, scrollTop = 0, clientHeight = 0 },
 ) {
-    Object.defineProperty(el, "scrollHeight", { value: scrollHeight, configurable: true });
-    Object.defineProperty(el, "scrollTop", { value: scrollTop, configurable: true });
-    Object.defineProperty(el, "clientHeight", { value: clientHeight, configurable: true });
+    Object.defineProperty(el, "scrollHeight", {
+        value: scrollHeight,
+        configurable: true,
+    });
+    Object.defineProperty(el, "scrollTop", {
+        value: scrollTop,
+        configurable: true,
+    });
+    Object.defineProperty(el, "clientHeight", {
+        value: clientHeight,
+        configurable: true,
+    });
     // fresh mock so assertions below only see calls made after this point
     el.scrollTo = vi.fn();
 }
@@ -31,18 +40,29 @@ describe("useAutoScroll", () => {
         const { getByTestId, rerender } = render(<TestComponent dep={1} />);
         const box = getByTestId("scroll-box") as HTMLDivElement;
         // 1000 - 900 - 100 = 0, well within the 150px threshold
-        setScrollMetrics(box, { scrollHeight: 1000, scrollTop: 900, clientHeight: 100 });
+        setScrollMetrics(box, {
+            scrollHeight: 1000,
+            scrollTop: 900,
+            clientHeight: 100,
+        });
 
         rerender(<TestComponent dep={2} />);
 
-        expect(box.scrollTo).toHaveBeenCalledWith({ top: 1000, behavior: "smooth" });
+        expect(box.scrollTo).toHaveBeenCalledWith({
+            top: 1000,
+            behavior: "smooth",
+        });
     });
 
     it("does not scroll when far from the bottom and not at the top", () => {
         const { getByTestId, rerender } = render(<TestComponent dep={1} />);
         const box = getByTestId("scroll-box") as HTMLDivElement;
         // 1000 - 200 - 100 = 700px away, well over the threshold
-        setScrollMetrics(box, { scrollHeight: 1000, scrollTop: 200, clientHeight: 100 });
+        setScrollMetrics(box, {
+            scrollHeight: 1000,
+            scrollTop: 200,
+            clientHeight: 100,
+        });
 
         rerender(<TestComponent dep={2} />);
 
@@ -54,17 +74,28 @@ describe("useAutoScroll", () => {
         // render with content already taller than the box)
         const { getByTestId, rerender } = render(<TestComponent dep={1} />);
         const box = getByTestId("scroll-box") as HTMLDivElement;
-        setScrollMetrics(box, { scrollHeight: 1000, scrollTop: 0, clientHeight: 100 });
+        setScrollMetrics(box, {
+            scrollHeight: 1000,
+            scrollTop: 0,
+            clientHeight: 100,
+        });
 
         rerender(<TestComponent dep={2} />);
 
-        expect(box.scrollTo).toHaveBeenCalledWith({ top: 1000, behavior: "smooth" });
+        expect(box.scrollTo).toHaveBeenCalledWith({
+            top: 1000,
+            behavior: "smooth",
+        });
     });
 
     it("does not scroll again when the dependency doesn't change", () => {
         const { getByTestId, rerender } = render(<TestComponent dep={1} />);
         const box = getByTestId("scroll-box") as HTMLDivElement;
-        setScrollMetrics(box, { scrollHeight: 1000, scrollTop: 900, clientHeight: 100 });
+        setScrollMetrics(box, {
+            scrollHeight: 1000,
+            scrollTop: 900,
+            clientHeight: 100,
+        });
 
         rerender(<TestComponent dep={1} />);
 
@@ -76,7 +107,11 @@ describe("useAutoScroll", () => {
         const { getByTestId, rerender } = render(<TestComponent dep={1} />);
         const box = getByTestId("scroll-box") as HTMLDivElement;
         // 1000 - 750 - 100 = 150, right at the boundary, should still scroll
-        setScrollMetrics(box, { scrollHeight: 1000, scrollTop: 750, clientHeight: 100 });
+        setScrollMetrics(box, {
+            scrollHeight: 1000,
+            scrollTop: 750,
+            clientHeight: 100,
+        });
 
         rerender(<TestComponent dep={2} />);
 

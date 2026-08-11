@@ -7,14 +7,28 @@ describe("SocialShareLinks", () => {
 
     it("renders a link for every supported platform", () => {
         render(<SocialShareLinks shareUrl={shareUrl} />);
-        for (const name of ["X / Twitter", "Facebook", "LinkedIn", "Reddit", "Telegram", "WhatsApp"]) {
+        for (const name of [
+            "X / Twitter",
+            "Facebook",
+            "LinkedIn",
+            "Reddit",
+            "Telegram",
+            "WhatsApp",
+        ]) {
             expect(screen.getByText(name)).toBeInTheDocument();
         }
     });
 
     it("every link opens in a new tab safely", () => {
         render(<SocialShareLinks shareUrl={shareUrl} />);
-        for (const name of ["X / Twitter", "Facebook", "LinkedIn", "Reddit", "Telegram", "WhatsApp"]) {
+        for (const name of [
+            "X / Twitter",
+            "Facebook",
+            "LinkedIn",
+            "Reddit",
+            "Telegram",
+            "WhatsApp",
+        ]) {
             const link = screen.getByText(name).closest("a")!;
             expect(link).toHaveAttribute("target", "_blank");
             expect(link).toHaveAttribute("rel", "noopener noreferrer");
@@ -24,7 +38,13 @@ describe("SocialShareLinks", () => {
     it("url-encodes the share link in every platform's href", () => {
         render(<SocialShareLinks shareUrl={shareUrl} />);
         const encoded = encodeURIComponent(shareUrl);
-        for (const name of ["X / Twitter", "Facebook", "LinkedIn", "Reddit", "Telegram"]) {
+        for (const name of [
+            "X / Twitter",
+            "Facebook",
+            "LinkedIn",
+            "Reddit",
+            "Telegram",
+        ]) {
             const link = screen.getByText(name).closest("a")!;
             expect(link.getAttribute("href")).toContain(encoded);
         }
@@ -39,7 +59,12 @@ describe("SocialShareLinks", () => {
     });
 
     it("uses a custom message when one is given", () => {
-        render(<SocialShareLinks shareUrl={shareUrl} message="Look what I made!" />);
+        render(
+            <SocialShareLinks
+                shareUrl={shareUrl}
+                message="Look what I made!"
+            />,
+        );
         const twitterLink = screen.getByText("X / Twitter").closest("a")!;
         expect(twitterLink.getAttribute("href")).toContain(
             encodeURIComponent("Look what I made!"),

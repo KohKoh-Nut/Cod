@@ -29,7 +29,10 @@ export interface TreeRow {
 // works out which rows stay in the tree: a row is kept if it's visible
 // itself, or if any of its descendants are kept (so the branch leading
 // to a visible descendant doesn't just disappear)
-export function computeKeptIds(rows: TreeRow[], childrenOf: Map<string, TreeRow[]>) {
+export function computeKeptIds(
+    rows: TreeRow[],
+    childrenOf: Map<string, TreeRow[]>,
+) {
     const kept = new Set<string>();
 
     // process newest first so every child is already resolved by the

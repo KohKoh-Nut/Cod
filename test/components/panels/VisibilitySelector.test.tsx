@@ -22,7 +22,9 @@ describe("VisibilitySelector", () => {
         const { rerender } = render(
             <VisibilitySelector value="public" onChange={() => {}} />,
         );
-        expect(screen.getByText("Anyone with the link can view it.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Anyone with the link can view it."),
+        ).toBeInTheDocument();
 
         rerender(<VisibilitySelector value="private" onChange={() => {}} />);
         expect(screen.getByText("Only you can view it.")).toBeInTheDocument();

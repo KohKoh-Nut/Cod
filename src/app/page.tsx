@@ -38,7 +38,7 @@ const EDITOR_LAYOUT = {
 // main editor page: language picker, code editor, run output, and the
 // save/share/history/fork actions around them
 export default function Home() {
-    const { timeString } = useTimer();
+    const { timeString, reset: resetTimer } = useTimer();
     const { alert } = useDialog();
 
     const {
@@ -122,6 +122,14 @@ export default function Home() {
     const handleClear = () => {
         if (isReadOnly) return;
         setCode("");
+        resetTimer();
+    };
+
+    // language changes also start a fresh timer, same as clearing --
+    // both mean the user is starting over on something new
+    const handleLanguageChange = (lang: string) => {
+        setLanguage(lang);
+        resetTimer();
     };
 
     // toolbar actions, with upload/clear hidden and share swapped for
@@ -175,7 +183,7 @@ export default function Home() {
                 <select
                     value={language}
                     disabled={isReadOnly}
-                    onChange={(e) => setLanguage(e.target.value)}
+                    onChange={(e) => handleLanguageChange(e.target.value)}
                     className="bg-bg-surface text-fg border border-border px-2 py-1 text-sm capitalize cursor-pointer focus:outline-none focus:border-brand rounded-none"
                 >
                     {SUPPORTED_LANGUAGES.map((lang) => (

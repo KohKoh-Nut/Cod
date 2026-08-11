@@ -8,8 +8,8 @@ import Button from "@/components/ui/Button";
 const NAV_LINKS = [
     { label: "Code", link: "/" },
     { label: "Profile", link: "/profile" },
-    { label: "Settings", link: "/settings" },
     { label: "Friends", link: "/friends" },
+    { label: "Settings", link: "/settings" },
 ];
 
 // floating menu button in the corner that expands into the app's nav links

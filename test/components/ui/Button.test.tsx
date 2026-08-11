@@ -36,8 +36,12 @@ describe("Button: click behavior", () => {
         await userEvent.click(button);
         rerender(<Button label="running..." onClick={onClick} disabled />);
 
-        await userEvent.click(screen.getByRole("button", { name: "running..." }));
-        await userEvent.click(screen.getByRole("button", { name: "running..." }));
+        await userEvent.click(
+            screen.getByRole("button", { name: "running..." }),
+        );
+        await userEvent.click(
+            screen.getByRole("button", { name: "running..." }),
+        );
 
         expect(onClick).toHaveBeenCalledTimes(1);
     });
@@ -88,7 +92,9 @@ describe("Button: rendering", () => {
 
     it("sets aria-label from the aria prop", () => {
         render(<Button label="✕" aria="close dialog" />);
-        expect(screen.getByRole("button", { name: "close dialog" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("button", { name: "close dialog" }),
+        ).toBeInTheDocument();
     });
 });
 

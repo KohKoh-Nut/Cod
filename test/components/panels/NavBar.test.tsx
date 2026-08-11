@@ -6,7 +6,9 @@ import NavBar from "@/components/panels/NavBar";
 describe("NavBar", () => {
     it("starts closed, showing only the menu button", () => {
         render(<NavBar />);
-        expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("button", { name: "Menu" }),
+        ).toBeInTheDocument();
         expect(screen.queryByText("Profile")).not.toBeInTheDocument();
     });
 
@@ -24,10 +26,22 @@ describe("NavBar", () => {
         render(<NavBar />);
         await userEvent.click(screen.getByRole("button", { name: "Menu" }));
 
-        expect(screen.getByText("Code").closest("a")).toHaveAttribute("href", "/");
-        expect(screen.getByText("Profile").closest("a")).toHaveAttribute("href", "/profile");
-        expect(screen.getByText("Settings").closest("a")).toHaveAttribute("href", "/settings");
-        expect(screen.getByText("Friends").closest("a")).toHaveAttribute("href", "/friends");
+        expect(screen.getByText("Code").closest("a")).toHaveAttribute(
+            "href",
+            "/",
+        );
+        expect(screen.getByText("Profile").closest("a")).toHaveAttribute(
+            "href",
+            "/profile",
+        );
+        expect(screen.getByText("Settings").closest("a")).toHaveAttribute(
+            "href",
+            "/settings",
+        );
+        expect(screen.getByText("Friends").closest("a")).toHaveAttribute(
+            "href",
+            "/friends",
+        );
     });
 
     it("closes again when the menu button is clicked a second time", async () => {

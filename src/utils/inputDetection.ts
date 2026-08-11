@@ -12,9 +12,8 @@ export function countInputCalls(src: string, lang: string): number {
     if (lang === "python") {
         // python's comment marker is # not //, so strip that too before
         // counting python's own input() calls below
-        return (
-            stripped.replace(/#[^\n]*/g, "").match(/\binput\s*\(/g) ?? []
-        ).length;
+        return (stripped.replace(/#[^\n]*/g, "").match(/\binput\s*\(/g) ?? [])
+            .length;
     }
 
     if (lang === "cpp" || lang === "c++") {

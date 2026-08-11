@@ -33,7 +33,10 @@ describe("getDefaultCode", () => {
 describe("CODE_SAMPLES", () => {
     it("every sample is non-empty", () => {
         for (const [lang, code] of Object.entries(CODE_SAMPLES)) {
-            expect(code.trim().length, `${lang} sample should not be empty`).toBeGreaterThan(0);
+            expect(
+                code.trim().length,
+                `${lang} sample should not be empty`,
+            ).toBeGreaterThan(0);
         }
     });
 

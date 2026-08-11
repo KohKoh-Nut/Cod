@@ -5,11 +5,7 @@ import { describe, it, expect, vi } from "vitest";
 // out rather than needing real supabase env vars in the test run
 vi.mock("@/utils/supabase-client", () => ({ supabase: {} }));
 
-import {
-    computeKeptIds,
-    buildTree,
-    TreeRow,
-} from "@/hooks/share/useForkTree";
+import { computeKeptIds, buildTree, TreeRow } from "@/hooks/share/useForkTree";
 
 // small helper to make a row without repeating every field each time
 function row(overrides: Partial<TreeRow> & { id: string }): TreeRow {
@@ -53,7 +49,11 @@ describe("computeKeptIds", () => {
         // children need a later created_at than their parent, since the
         // algorithm resolves newest-first
         const rows = [
-            row({ id: "a", visible: false, created_at: "2026-01-01T00:00:00Z" }),
+            row({
+                id: "a",
+                visible: false,
+                created_at: "2026-01-01T00:00:00Z",
+            }),
             row({
                 id: "b",
                 parent_share_id: "a",
@@ -86,8 +86,16 @@ describe("computeKeptIds", () => {
     it("keeps a visible sibling but drops a hidden one with no descendants", () => {
         const rows = [
             row({ id: "root", visible: true }),
-            row({ id: "visible-child", parent_share_id: "root", visible: true }),
-            row({ id: "hidden-child", parent_share_id: "root", visible: false }),
+            row({
+                id: "visible-child",
+                parent_share_id: "root",
+                visible: true,
+            }),
+            row({
+                id: "hidden-child",
+                parent_share_id: "root",
+                visible: false,
+            }),
         ];
         const kept = computeKeptIds(rows, childrenMap(rows));
         expect(kept.has("visible-child")).toBe(true);
@@ -101,7 +109,13 @@ describe("buildTree", () => {
         const byId = new Map(rows.map((r) => [r.id, r]));
         const kept = computeKeptIds(rows, childrenMap(rows));
 
-        const tree = buildTree("root", byId, childrenMap(rows), kept, new Map());
+        const tree = buildTree(
+            "root",
+            byId,
+            childrenMap(rows),
+            kept,
+            new Map(),
+        );
 
         expect(tree).toEqual(
             expect.objectContaining({ id: "root", children: [] }),
@@ -116,7 +130,13 @@ describe("buildTree", () => {
         const byId = new Map(rows.map((r) => [r.id, r]));
         const kept = computeKeptIds(rows, childrenMap(rows));
 
-        const tree = buildTree("root", byId, childrenMap(rows), kept, new Map());
+        const tree = buildTree(
+            "root",
+            byId,
+            childrenMap(rows),
+            kept,
+            new Map(),
+        );
 
         expect(tree?.children).toHaveLength(1);
         expect(tree?.children[0].id).toBe("child");
@@ -130,7 +150,13 @@ describe("buildTree", () => {
         const byId = new Map(rows.map((r) => [r.id, r]));
         const kept = computeKeptIds(rows, childrenMap(rows));
 
-        const tree = buildTree("root", byId, childrenMap(rows), kept, new Map());
+        const tree = buildTree(
+            "root",
+            byId,
+            childrenMap(rows),
+            kept,
+            new Map(),
+        );
 
         expect(tree?.children).toHaveLength(0);
     });
@@ -140,7 +166,13 @@ describe("buildTree", () => {
         const byId = new Map(rows.map((r) => [r.id, r]));
         const kept = computeKeptIds(rows, childrenMap(rows));
 
-        const tree = buildTree("missing-root", byId, childrenMap(rows), kept, new Map());
+        const tree = buildTree(
+            "missing-root",
+            byId,
+            childrenMap(rows),
+            kept,
+            new Map(),
+        );
 
         expect(tree).toBeNull();
     });
@@ -151,7 +183,13 @@ describe("buildTree", () => {
         const kept = computeKeptIds(rows, childrenMap(rows));
         const usernames = new Map([["u1", "ada"]]);
 
-        const tree = buildTree("root", byId, childrenMap(rows), kept, usernames);
+        const tree = buildTree(
+            "root",
+            byId,
+            childrenMap(rows),
+            kept,
+            usernames,
+        );
 
         expect(tree?.username).toBe("ada");
     });
@@ -161,7 +199,13 @@ describe("buildTree", () => {
         const byId = new Map(rows.map((r) => [r.id, r]));
         const kept = computeKeptIds(rows, childrenMap(rows));
 
-        const tree = buildTree("root", byId, childrenMap(rows), kept, new Map());
+        const tree = buildTree(
+            "root",
+            byId,
+            childrenMap(rows),
+            kept,
+            new Map(),
+        );
 
         expect(tree?.username).toBeNull();
     });
@@ -175,7 +219,13 @@ describe("buildTree", () => {
         const byId = new Map(rows.map((r) => [r.id, r]));
         const kept = computeKeptIds(rows, childrenMap(rows));
 
-        const tree = buildTree("root", byId, childrenMap(rows), kept, new Map());
+        const tree = buildTree(
+            "root",
+            byId,
+            childrenMap(rows),
+            kept,
+            new Map(),
+        );
 
         expect(tree?.children[0].children[0].id).toBe("grandchild");
     });
